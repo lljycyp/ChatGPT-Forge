@@ -27,22 +27,28 @@ type WorkspacePageProps = { appState: AppState; profiles: ProfileSummary[]; onDi
 type HistoryState = { items: ProfileUsage[]; pacePerDay: number | null };
 type HealthCheck = { key: string; ok: boolean; message: string; severity: "ok" | "warning" | "error"; action?: string | null };
 type HealthState = { name?: string; healthy: boolean; checks: HealthCheck[] };
-type McpServer = { name: string; command?: string; args?: string[]; env?: Record<string, string> };
+type McpServer = { name: string; command?: string; args?: string[]; env?: Record<string, string>; enabled: boolean };
 type Skill = { name: string; enabled: boolean; path: string; hasManifest: boolean };
 type WorkspaceState = { codexHome: string; configError?: string; agentsPath: string; agentsContent: string; mcpServers: McpServer[]; skills: Skill[] };
 type SessionItem = { id: string; title: string; projectPath: string; path: string; updatedAt: number; sizeBytes: number };
 type LaunchSettings = { workingDir: string; args: string[]; env: Record<string, string> };
 type WorkspaceSnapshot = {
-  history: HistoryState;
-  health: HealthState;
-  workspace: WorkspaceState;
-  sessions: { items: SessionItem[] };
-  launchSettings: LaunchSettings;
+  history?: HistoryState;
+  health?: HealthState;
+  workspace?: WorkspaceState;
+  sessions?: { items: SessionItem[] };
+  launchSettings?: LaunchSettings;
 };
 type WorkspaceTab = "insights" | "resources" | "sessions" | "launch";
 
 const SYSTEM_PROFILE_NAME = "__system__";
 const workspaceTabStorageKey = "chatgptForgeWorkspaceTab";
+const workspaceSections: Record<WorkspaceTab, string[]> = {
+  insights: ["history", "health"],
+  resources: ["workspace"],
+  sessions: ["sessions"],
+  launch: ["launchSettings"],
+};
 const { TextArea } = Input;
 
 export function WorkspacePage({ appState, profiles, onDirtyChange }: WorkspacePageProps) {
@@ -85,23 +91,26 @@ export function WorkspacePage({ appState, profiles, onDirtyChange }: WorkspacePa
         name: profileName,
         days: 30,
         limit: 300,
+        sections: workspaceSections[activeTab],
       });
-      setHistory(snapshot.history);
-      setHealth(snapshot.health);
-      setWorkspace(snapshot.workspace);
-      setSessions(snapshot.sessions.items);
-      setSavedAgents(snapshot.workspace.agentsContent);
-      setSavedLaunchSettings(snapshot.launchSettings);
-      if (!options?.preserveEdits) {
-        setAgents(snapshot.workspace.agentsContent);
-        setLaunchSettings(snapshot.launchSettings);
+      if (snapshot.history) setHistory(snapshot.history);
+      if (snapshot.health) setHealth(snapshot.health);
+      if (snapshot.sessions) setSessions(snapshot.sessions.items);
+      if (snapshot.workspace) {
+        setWorkspace(snapshot.workspace);
+        setSavedAgents(snapshot.workspace.agentsContent);
+        if (!options?.preserveEdits) setAgents(snapshot.workspace.agentsContent);
+      }
+      if (snapshot.launchSettings) {
+        setSavedLaunchSettings(snapshot.launchSettings);
+        if (!options?.preserveEdits) setLaunchSettings(snapshot.launchSettings);
       }
     } catch (error) {
       message.error(error instanceof Error ? error.message : t("读取工作台失败"));
     } finally {
       setLoading(false);
     }
-  }, [appState.launchMode, profileName, t]);
+  }, [activeTab, appState.launchMode, profileName, t]);
 
   useEffect(() => { void refresh(); }, [refresh]);
 
@@ -203,6 +212,7 @@ function UsageSparkline({ items }: { items: ProfileUsage[] }) {
 function ResourcesPanel({ state, agents, onAgentsChange, payload, onRefresh }: { state: WorkspaceState; agents: string; onAgentsChange: (value: string) => void; payload: object; onRefresh: () => Promise<void> }) {
   const { t } = useI18n();
   const [mcpOpen, setMcpOpen] = useState(false);
+  const [editingMcp, setEditingMcp] = useState<McpServer | null>(null);
   const [mcpForm] = Form.useForm();
 
   const saveAgents = async () => {
@@ -211,6 +221,7 @@ function ResourcesPanel({ state, agents, onAgentsChange, payload, onRefresh }: {
     await onRefresh();
   };
   const editMcp = (server?: McpServer) => {
+    setEditingMcp(server || null);
     mcpForm.setFieldsValue({
       name: server?.name || "",
       command: server?.command || "",
@@ -221,9 +232,19 @@ function ResourcesPanel({ state, agents, onAgentsChange, payload, onRefresh }: {
   };
   const saveMcp = async () => {
     const values = await mcpForm.validateFields();
-    await invokeLauncher("save_mcp_server", { ...payload, server: { name: values.name, command: values.command, args: lines(values.args), env: envLines(values.env) } });
+    await invokeLauncher("save_mcp_server", {
+      ...payload,
+      server: {
+        name: values.name,
+        command: values.command,
+        args: lines(values.args),
+        env: envLines(values.env),
+        enabled: editingMcp?.enabled ?? true,
+      },
+    });
     message.success(t("MCP 服务已保存"));
     setMcpOpen(false);
+    setEditingMcp(null);
     await onRefresh();
   };
   const confirmDeleteMcp = (server: McpServer) => {
@@ -266,7 +287,24 @@ function ResourcesPanel({ state, agents, onAgentsChange, payload, onRefresh }: {
           columns={[
             { title: t("名称"), dataIndex: "name" },
             { title: t("命令"), dataIndex: "command", ellipsis: true },
-            { title: "", width: 110, render: (_, server) => <Space><Button size="small" onClick={() => editMcp(server)}>{t("编辑")}</Button><Button aria-label={`${t("删除 MCP 服务")} ${server.name}`} size="small" danger icon={<Trash2 size={13} />} onClick={() => confirmDeleteMcp(server)} /></Space> },
+            {
+              title: "",
+              width: 160,
+              render: (_, server) => <Space>
+                <Switch
+                  aria-label={`${t("切换 MCP 状态")} ${server.name}`}
+                  size="small"
+                  checked={server.enabled}
+                  onChange={async (enabled) => {
+                    await invokeLauncher("set_mcp_enabled", { ...payload, name: server.name, enabled });
+                    message.success(t("MCP 状态已更新，重启 Codex 后生效"));
+                    await onRefresh();
+                  }}
+                />
+                <Button size="small" onClick={() => editMcp(server)}>{t("编辑")}</Button>
+                <Button aria-label={`${t("删除 MCP 服务")} ${server.name}`} size="small" danger icon={<Trash2 size={13} />} onClick={() => confirmDeleteMcp(server)} />
+              </Space>,
+            },
           ]}
         />
       </Card>
@@ -276,7 +314,7 @@ function ResourcesPanel({ state, agents, onAgentsChange, payload, onRefresh }: {
       <Card className="xl:col-span-2" title={<span className="flex items-center gap-2"><FileText size={16} />AGENTS.md</span>} extra={<Button type="primary" icon={<Save size={14} />} onClick={saveAgents}>{t("保存")}</Button>}>
         <TextArea className="!h-[320px] !font-mono !text-sm" value={agents} onChange={(event) => onAgentsChange(event.target.value)} />
       </Card>
-      <Modal title={t("MCP 服务")} open={mcpOpen} onCancel={() => setMcpOpen(false)} onOk={saveMcp} okText={t("保存")}>
+      <Modal title={t("MCP 服务")} open={mcpOpen} onCancel={() => { setMcpOpen(false); setEditingMcp(null); }} onOk={saveMcp} okText={t("保存")}>
         <Form form={mcpForm} layout="vertical">
           <Form.Item name="name" label={t("名称")} rules={[{ required: true }]}><Input placeholder="playwright" /></Form.Item>
           <Form.Item name="command" label={t("命令")} rules={[{ required: true }]}><Input placeholder="npx" /></Form.Item>

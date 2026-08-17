@@ -24,7 +24,7 @@ def read_workspace(codex_home):
         "agentsPath": str(codex_home / "AGENTS.md"),
         "agentsContent": _read_text(codex_home / "AGENTS.md"),
         "mcpServers": [
-            {"name": name, **value}
+            {**value, "name": name, "enabled": value.get("enabled") is not False}
             for name, value in sorted(mcp_servers.items())
             if isinstance(value, dict)
         ],
@@ -51,12 +51,15 @@ def save_mcp_server(config_path, server):
         for key, value in dict(server.get("env") or {}).items()
         if str(key).strip()
     }
+    enabled = server.get("enabled") is not False
     config_path = Path(config_path)
     content = _read_text(config_path)
     content = _remove_mcp_section(content, name).rstrip()
     section = [f"[mcp_servers.{name}]", f"command = {_toml_string(command)}"]
     if args:
         section.append("args = [" + ", ".join(_toml_string(value) for value in args) + "]")
+    if not enabled:
+        section.append("enabled = false")
     if env:
         section.extend(["", f"[mcp_servers.{name}.env]"])
         section.extend(f"{_toml_key(key)} = {_toml_string(value)}" for key, value in sorted(env.items()))
@@ -77,6 +80,33 @@ def delete_mcp_server(config_path, name):
     _backup_file(config_path)
     config_path.write_text(content + ("\n" if content else ""), encoding="utf-8")
     return {"name": name}
+
+
+def set_mcp_enabled(config_path, name, enabled):
+    config_path = Path(config_path)
+    name = _validate_name(name, "MCP 名称")
+    content = _read_text(config_path)
+    config = _read_toml(config_path)
+    servers = config.get("mcp_servers") if isinstance(config, dict) else None
+    if not isinstance(servers, dict) or not isinstance(servers.get(name), dict):
+        raise FileNotFoundError("MCP 服务不存在")
+
+    header = re.search(rf"(?m)^\[mcp_servers\.{re.escape(name)}\]\s*$", content)
+    if not header:
+        raise ValueError("无法定位 MCP 服务配置")
+    next_header = re.search(r"(?m)^\[[^\]]+\]\s*$", content[header.end() :])
+    section_end = header.end() + next_header.start() if next_header else len(content)
+    section = content[header.end() : section_end]
+    enabled_line = f"enabled = {'true' if enabled else 'false'}"
+    if re.search(r"(?m)^enabled\s*=.*$", section):
+        section = re.sub(r"(?m)^enabled\s*=.*$", enabled_line, section, count=1)
+    else:
+        section = f"\n{enabled_line}{section}"
+    next_content = content[: header.end()] + section + content[section_end:]
+    tomllib.loads(next_content)
+    _backup_file(config_path)
+    config_path.write_text(next_content, encoding="utf-8")
+    return {"name": name, "enabled": bool(enabled)}
 
 
 def set_skill_enabled(codex_home, name, enabled):

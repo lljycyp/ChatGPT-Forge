@@ -17,6 +17,7 @@ from core.workspace_service import (
     read_workspace,
     remove_skill,
     save_mcp_server,
+    set_mcp_enabled,
 )
 
 
@@ -53,6 +54,26 @@ class WorkspaceFeatureTests(unittest.TestCase):
         self.assertEqual("home", result["workspace"]["codexHome"])
         get_history.assert_called_once_with({"name": "work", "days": 7})
         list_session_items.assert_called_once_with({"profileName": "work", "limit": 20})
+
+    def test_workspace_snapshot_reads_only_requested_sections(self):
+        with (
+            patch.object(commands, "get_usage_history") as get_history,
+            patch.object(commands, "get_profile_health") as get_health,
+            patch.object(commands, "get_workspace", return_value={"codexHome": "home"}) as get_workspace,
+            patch.object(commands, "list_sessions") as list_session_items,
+            patch.object(commands, "get_profile_launch_settings") as get_launch_settings,
+            patch.object(commands, "_require_profile_name", return_value="work"),
+        ):
+            result = commands.get_workspace_snapshot(
+                {"name": "work", "profileName": "work", "sections": ["workspace"]}
+            )
+
+        self.assertEqual({"workspace": {"codexHome": "home"}}, result)
+        get_workspace.assert_called_once_with({"profileName": "work"})
+        get_history.assert_not_called()
+        get_health.assert_not_called()
+        list_session_items.assert_not_called()
+        get_launch_settings.assert_not_called()
 
     def test_profile_summaries_load_records_and_usage_once(self):
         config = {"profiles": ["work", "personal"], "launch_mode": "switch"}
@@ -98,6 +119,30 @@ class WorkspaceFeatureTests(unittest.TestCase):
             delete_mcp_server(config_path, "demo")
             self.assertNotIn("mcp_servers.demo", config_path.read_text(encoding="utf-8"))
             self.assertIn("[features]", config_path.read_text(encoding="utf-8"))
+
+    def test_mcp_toggle_preserves_existing_configuration(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            config_path = Path(temp_dir) / "config.toml"
+            config_path.write_text(
+                '[mcp_servers.demo]\ncommand = "npx"\nargs = ["-y", "demo"]\nstartup_timeout_sec = 20\n\n'
+                '[mcp_servers.demo.env]\nTOKEN = "secret"\n',
+                encoding="utf-8",
+            )
+
+            set_mcp_enabled(config_path, "demo", False)
+
+            content = config_path.read_text(encoding="utf-8")
+            workspace = read_workspace(temp_dir)
+            self.assertIn("enabled = false", content)
+            self.assertIn("startup_timeout_sec = 20", content)
+            self.assertIn('TOKEN = "secret"', content)
+            self.assertFalse(workspace["mcpServers"][0]["enabled"])
+
+            save_mcp_server(
+                config_path,
+                {"name": "demo", "command": "npx", "args": ["-y", "demo"], "enabled": False},
+            )
+            self.assertFalse(read_workspace(temp_dir)["mcpServers"][0]["enabled"])
 
     def test_skill_remove_moves_to_backup(self):
         with tempfile.TemporaryDirectory() as temp_dir:

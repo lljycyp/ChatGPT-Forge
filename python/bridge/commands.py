@@ -71,6 +71,7 @@ from core.workspace_service import (
     remove_skill as remove_skill_service,
     save_agents as save_agents_service,
     save_mcp_server as save_mcp_server_service,
+    set_mcp_enabled as set_mcp_enabled_service,
     set_skill_enabled as set_skill_enabled_service,
 )
 
@@ -130,6 +131,7 @@ def invoke(command, payload=None):
         "save_agents": save_agents,
         "save_mcp_server": save_mcp_server,
         "save_profile_launch_settings": save_profile_launch_settings,
+        "set_mcp_enabled": set_mcp_enabled,
         "set_skill_enabled": set_skill_enabled,
         "sync_toml_keys": sync_toml_keys,
         "delete_mcp_server": delete_mcp_server,
@@ -455,6 +457,12 @@ def get_workspace_snapshot(payload):
         "sessions": (list_sessions, {**workspace_payload, "limit": payload.get("limit", 300)}),
         "launchSettings": (get_profile_launch_settings, {"name": name}),
     }
+    requested_sections = payload.get("sections")
+    if isinstance(requested_sections, list):
+        sections = {str(section) for section in requested_sections}
+        readers = {key: value for key, value in readers.items() if key in sections}
+        if not readers:
+            raise ValueError("环境工作台读取范围无效")
     results = {}
     errors = {}
 
@@ -490,6 +498,14 @@ def save_mcp_server(payload):
 def delete_mcp_server(payload):
     target = _workspace_target(payload)
     return delete_mcp_server_service(target["path"], payload.get("name"))
+
+
+def set_mcp_enabled(payload):
+    target = _workspace_target(payload)
+    enabled = payload.get("enabled")
+    if not isinstance(enabled, bool):
+        raise ValueError("MCP 启用状态无效")
+    return set_mcp_enabled_service(target["path"], payload.get("name"), enabled)
 
 
 def set_skill_enabled(payload):
