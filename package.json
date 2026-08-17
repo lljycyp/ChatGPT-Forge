@@ -1,6 +1,6 @@
 {
   "name": "chatgpt-forge-desktop",
-  "version": "1.0.12",
+  "version": "1.0.13",
   "description": "Windows profile and multi-instance manager for the ChatGPT desktop app.",
   "author": "ChatGPT Forge",
   "private": true,
