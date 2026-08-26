@@ -39,6 +39,7 @@ export function SettingsPage({ appState, privacyMode, runCommand, onPrivacyModeC
   const [autoStartLoading, setAutoStartLoading] = useState(false);
   const [checkUpdateLoading, setCheckUpdateLoading] = useState(false);
   const [launchModeLoading, setLaunchModeLoading] = useState(false);
+  const [codexSourceLoading, setCodexSourceLoading] = useState(false);
   const [diagnosticsLoading, setDiagnosticsLoading] = useState(false);
   const [quotaAlertsEnabled, setQuotaAlertsEnabled] = useState(() => localStorage.getItem("quotaAlertsEnabled") !== "false");
   const [quotaAlertThreshold, setQuotaAlertThreshold] = useState(() => Number(localStorage.getItem("quotaAlertThreshold") || "20"));
@@ -172,6 +173,19 @@ export function SettingsPage({ appState, privacyMode, runCommand, onPrivacyModeC
     void saveLaunchMode(mode);
   };
 
+  const refreshCodexSource = async () => {
+    setCodexSourceLoading(true);
+    try {
+      await runCommand(
+        "refresh_codex_source",
+        {},
+        t("已重新识别 Codex 客户端"),
+      );
+    } finally {
+      setCodexSourceLoading(false);
+    }
+  };
+
   const saveQuotaAlertSettings = (enabled: boolean, threshold = quotaAlertThreshold) => {
     const normalized = Math.max(1, Math.min(Number(threshold) || 20, 90));
     setQuotaAlertsEnabled(enabled);
@@ -276,6 +290,21 @@ export function SettingsPage({ appState, privacyMode, runCommand, onPrivacyModeC
                 description={t("首次启动多开账号时会从系统已安装的客户端复制一份共享副本，新增账号不会重复复制。运行中的多开实例需要先关闭，才能切回账号切换模式。")}
               />
             ) : null}
+          </div>
+          <div className="mb-5 flex items-center justify-between gap-6 border-b border-slate-200 pb-5">
+            <div className="min-w-0">
+              <div className="font-semibold text-slate-700">{t("Codex 客户端来源")}</div>
+              <div className="mt-1 text-sm leading-6 text-slate-500">
+                {t("重新识别系统当前安装的 Codex 客户端；共享副本会在下次启动前同步更新。")}
+              </div>
+            </div>
+            <Button
+              icon={<RefreshCw size={14} />}
+              loading={codexSourceLoading}
+              onClick={() => void refreshCodexSource()}
+            >
+              {t("重新识别")}
+            </Button>
           </div>
           <div className="flex items-center justify-between gap-6">
             <div className="min-w-0">

@@ -15,11 +15,13 @@ from bridge.commands import (
     _is_profile_running,
     _is_same_auth_account,
     _launch_default_codex,
+    _resolve_codex_app_source_path,
     _resolve_configured_codex_app_path,
     _running_multi_profile_names,
     _stop_client_processes,
     export_profile_backup,
     ensure_codex_skin_sessions,
+    refresh_codex_source,
     set_launch_mode,
     set_codex_skin_enabled,
 )
@@ -45,6 +47,84 @@ from core.usage_service import _map_app_server_usage
 
 
 class ChatGptCompatibilityTest(unittest.TestCase):
+    def test_store_source_prefers_latest_installed_package(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            windows_apps = Path(temp_dir) / "WindowsApps"
+            old_path = windows_apps / "OpenAI.Codex_26.810.4967.0_x64__test" / "app" / "ChatGPT.exe"
+            latest_path = windows_apps / "OpenAI.Codex_26.820.7780.0_x64__test" / "app" / "ChatGPT.exe"
+            old_path.parent.mkdir(parents=True)
+            latest_path.parent.mkdir(parents=True)
+            old_path.write_bytes(b"old")
+            latest_path.write_bytes(b"latest")
+            config = {"codex_path": str(old_path)}
+
+            with (
+                patch("bridge.commands.find_windowsapps_codex_path_by_package", return_value=str(latest_path)),
+                patch("bridge.commands.save_config") as save_config,
+            ):
+                resolved_path = _resolve_codex_app_source_path(config)
+
+            self.assertEqual(resolved_path, latest_path)
+            self.assertEqual(config["codex_path"], str(latest_path))
+            save_config.assert_called_once_with(config)
+
+    def test_refresh_codex_source_reidentifies_latest_store_package(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            windows_apps = Path(temp_dir) / "WindowsApps"
+            old_path = windows_apps / "OpenAI.Codex_26.810.4967.0_x64__test" / "app" / "ChatGPT.exe"
+            latest_path = windows_apps / "OpenAI.Codex_26.820.7780.0_x64__test" / "app" / "ChatGPT.exe"
+            old_path.parent.mkdir(parents=True)
+            latest_path.parent.mkdir(parents=True)
+            old_path.write_bytes(b"old")
+            latest_path.write_bytes(b"latest")
+            config = {"codex_path": str(old_path)}
+
+            with (
+                patch("bridge.commands.load_config", return_value=config),
+                patch("bridge.commands.find_windowsapps_codex_path_by_package", return_value=str(latest_path)),
+                patch("bridge.commands._find_windows_store_codex_app_id", return_value=""),
+                patch("bridge.commands.save_config") as save_config,
+            ):
+                result = refresh_codex_source()
+
+            self.assertEqual(result["codexLaunchPath"], str(latest_path))
+            self.assertEqual(config["codex_path"], str(latest_path))
+            save_config.assert_called_once_with(config)
+
+    def test_store_source_falls_back_when_latest_package_lookup_fails(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            old_path = Path(temp_dir) / "WindowsApps" / "OpenAI.Codex_26.810.4967.0_x64__test" / "app" / "ChatGPT.exe"
+            old_path.parent.mkdir(parents=True)
+            old_path.write_bytes(b"old")
+            config = {"codex_path": str(old_path)}
+
+            with (
+                patch("bridge.commands.find_windowsapps_codex_path_by_package", side_effect=OSError("AppX unavailable")),
+                patch("bridge.commands.save_config") as save_config,
+            ):
+                resolved_path = _resolve_codex_app_source_path(config)
+
+            self.assertEqual(resolved_path, old_path)
+            self.assertEqual(config["codex_path"], str(old_path))
+            save_config.assert_not_called()
+
+    def test_custom_source_is_not_replaced_by_store_package(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            custom_path = Path(temp_dir) / "CustomCodex" / "ChatGPT.exe"
+            custom_path.parent.mkdir(parents=True)
+            custom_path.write_bytes(b"custom")
+            config = {"codex_path": str(custom_path)}
+
+            with (
+                patch("bridge.commands.find_windowsapps_codex_path_by_package") as find_package,
+                patch("bridge.commands.save_config") as save_config,
+            ):
+                resolved_path = _resolve_codex_app_source_path(config)
+
+            self.assertEqual(resolved_path, custom_path)
+            find_package.assert_not_called()
+            save_config.assert_not_called()
+
     def test_switch_mode_skin_launches_regular_client_directly_with_cdp(self):
         process = SimpleNamespace(pid=88)
         with (

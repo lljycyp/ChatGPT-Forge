@@ -19,6 +19,7 @@ from core import db
 from core.codex_source import (
     find_running_codex_path,
     find_windowsapps_codex_path,
+    find_windowsapps_codex_path_by_package,
     prepare_portable_codex_path,
     request_process_close,
     read_source_signature,
@@ -1021,7 +1022,7 @@ def _emit_backend_progress(payload):
 def refresh_codex_source(_payload=None):
     """刷新可启动的 Codex 程序来源，兼容无命令行别名的安装方式。"""
     config = load_config()
-    launch_spec = _resolve_codex_launch_spec(config)
+    launch_spec = _resolve_codex_launch_spec(config, refresh_store_source=True)
     logger.info("刷新 Codex 来源成功 类型=%s 显示=%s", launch_spec["kind"], launch_spec["display"])
     return {
         "codexCommandAvailable": True,
@@ -1721,10 +1722,12 @@ def _is_codex_command_available(config=None, running_processes=None):
         return False
 
 
-def _resolve_codex_launch_spec(config):
+def _resolve_codex_launch_spec(config, *, refresh_store_source=False):
     """优先使用桌面程序，其次使用微软商店应用标识。"""
     configured_path = str(config.get("codex_path") or "").strip()
     configured_app_path = _resolve_configured_codex_app_path(configured_path)
+    if refresh_store_source:
+        configured_app_path = _prefer_latest_installed_store_path(configured_app_path)
     if configured_app_path:
         if str(configured_app_path) != configured_path:
             config["codex_path"] = str(configured_app_path)
@@ -1755,6 +1758,7 @@ def _resolve_codex_app_source_path(config):
     """定位用于复制共享客户端副本的 Codex 安装源。"""
     configured_path = str(config.get("codex_path") or "").strip()
     configured_app_path = _resolve_configured_codex_app_path(configured_path)
+    configured_app_path = _prefer_latest_installed_store_path(configured_app_path)
     if configured_app_path:
         if str(configured_app_path) != configured_path:
             config["codex_path"] = str(configured_app_path)
@@ -1768,6 +1772,21 @@ def _resolve_codex_app_source_path(config):
         return Path(detected_path)
 
     raise FileNotFoundError("多开隔离模式需要可识别的 Codex 桌面客户端，请先刷新来源或安装客户端")
+
+
+def _prefer_latest_installed_store_path(configured_app_path):
+    """商店安装路径会随升级变化，已配置商店版时优先使用当前最新安装包。"""
+    if not configured_app_path or not _is_windows_store_codex_path(configured_app_path):
+        return configured_app_path
+    try:
+        detected_path = find_windowsapps_codex_path_by_package()
+    except Exception as exc:
+        logger.warning("重新识别 Codex 商店安装包失败，继续使用已配置路径 错误=%s", exc)
+        return configured_app_path
+    latest_path = Path(detected_path) if detected_path else None
+    if latest_path and latest_path.is_file():
+        return latest_path
+    return configured_app_path
 
 
 def _resolve_configured_codex_app_path(configured_path):
