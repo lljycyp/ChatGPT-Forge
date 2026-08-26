@@ -125,7 +125,7 @@ export function SettingsPage({ appState, privacyMode, runCommand, onPrivacyModeC
     }
     Modal.confirm({
       title: t("更改账号资料位置"),
-      content: t("将迁移整个账号资料根目录。迁移期间请先关闭正在运行的 ChatGPT。"),
+      content: t("将迁移整个账号资料根目录。迁移期间请先关闭正在运行的 Codex。"),
       okText: t("开始迁移"),
       cancelText: t("取消"),
       onOk: async () => {
@@ -161,8 +161,8 @@ export function SettingsPage({ appState, privacyMode, runCommand, onPrivacyModeC
       Modal.confirm({
         title: t("切换到多开隔离模式"),
         content: appState.runningCount > 0
-          ? (language === "en-US" ? "ChatGPT is running. Close it first if possible. Isolated multi-instance mode creates one shared copy from the installed ChatGPT client, then keeps each account's configuration and runtime data separate." : "检测到 ChatGPT 正在运行。建议先关闭当前 ChatGPT；多开隔离模式会从系统已安装的 ChatGPT 客户端复制出一份共享副本，并分别隔离每个账号的配置和运行数据。")
-          : (language === "en-US" ? "Isolated multi-instance mode creates one shared copy from the installed ChatGPT client, then keeps each account's configuration and runtime data separate." : "多开隔离模式会从系统已安装的 ChatGPT 客户端复制出一份共享副本，并分别隔离每个账号的配置和运行数据。"),
+          ? (language === "en-US" ? "Codex is running. Close it first if possible. Isolated multi-instance mode creates one shared copy from the installed Codex client, then keeps each account's configuration and runtime data separate." : "检测到 Codex 正在运行。建议先关闭当前 Codex；多开隔离模式会从系统已安装的 Codex 客户端复制出一份共享副本，并分别隔离每个账号的配置和运行数据。")
+          : (language === "en-US" ? "Isolated multi-instance mode creates one shared copy from the installed Codex client, then keeps each account's configuration and runtime data separate." : "多开隔离模式会从系统已安装的 Codex 客户端复制出一份共享副本，并分别隔离每个账号的配置和运行数据。"),
         okText: t("切换"),
         cancelText: t("取消"),
         onOk: () => saveLaunchMode(mode),
@@ -265,14 +265,14 @@ export function SettingsPage({ appState, privacyMode, runCommand, onPrivacyModeC
               <Radio.Button value="multi">{t("多开隔离模式")}</Radio.Button>
             </Radio.Group>
             <div className="mt-3 text-sm leading-6 text-slate-500">
-              {t("账号切换模式共用系统 .codex；多开隔离模式为每个账号使用独立环境，可同时运行多个 ChatGPT 客户端。")}
+              {t("账号切换模式共用系统 .codex；多开隔离模式为每个账号使用独立环境，可同时运行多个 Codex 客户端。")}
             </div>
             {appState.launchMode === "multi" ? (
               <Alert
                 className="mt-3"
                 type="warning"
                 showIcon
-                message={t("多开账号共用一份 ChatGPT 客户端副本")}
+                message={t("多开账号共用一份 Codex 客户端副本")}
                 description={t("首次启动多开账号时会从系统已安装的客户端复制一份共享副本，新增账号不会重复复制。运行中的多开实例需要先关闭，才能切回账号切换模式。")}
               />
             ) : null}

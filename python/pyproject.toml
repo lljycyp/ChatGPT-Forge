@@ -1,7 +1,7 @@
 [project]
 name = "codex-forge"
 version = "0.1.0"
-description = "Windows profile and multi-instance manager for the ChatGPT desktop app."
+description = "Windows profile and multi-instance manager for the Codex desktop app."
 requires-python = ">=3.11"
 dependencies = []
 

@@ -10,11 +10,11 @@
 <h1 align="center">Codex Forge</h1>
 
 <p align="center">
-  <b>ChatGPT multi-account and multi-instance management · Auth management · Visual TOML / instruction workspace</b>
+  <b>Codex multi-account and multi-instance management · Auth management · Visual TOML / instruction workspace</b>
 </p>
 
 <p align="center">
-  A local multi-account and multi-instance manager for the ChatGPT desktop app on Windows. It brings the runtime environment, ChatGPT instances, login profiles, <code>auth.json</code>, <code>config.toml</code>, instruction templates, and usage snapshots into one desktop workspace. You can switch accounts before launching ChatGPT or run multiple isolated ChatGPT clients.
+  A local multi-account and multi-instance manager for the Codex desktop app on Windows. It brings the runtime environment, Codex instances, login profiles, <code>auth.json</code>, <code>config.toml</code>, instruction templates, and usage snapshots into one desktop workspace. You can switch accounts before launching Codex or run multiple isolated Codex clients.
 </p>
 
 <p align="center">
@@ -34,18 +34,18 @@
 
 ## 📖 Overview
 
-**Codex Forge** is a local workspace for ChatGPT accounts, multi-instance launches, and configuration. It turns common terminal-side operations into desktop app workflows:
+**Codex Forge** is a local workspace for Codex accounts, multi-instance launches, and configuration. It turns common terminal-side operations into desktop app workflows:
 
-- ✨ **Multiple accounts**: Manage multiple ChatGPT account profiles in one place.
+- ✨ **Multiple accounts**: Manage multiple Codex account profiles in one place.
 - 🔑 **Flexible auth import**: Add accounts through browser OAuth, the current default account, or a local `auth.json` file.
 - 🔄 **Smooth switching**: Write the selected account to `~/.codex/auth.json` automatically.
 - 🛡️ **Config isolation**: Account-switching mode always uses the system `~/.codex/config.toml`; isolated multi-instance mode uses each account's `CodexHome/config.toml`.
 - 🛠️ **Visual editing**: View and edit the active `~/.codex/config.toml`.
-- 📝 **Instruction templates (prompt injection)**: Save common prompts as Markdown templates and switch ChatGPT's global behavior profile with one click. The built-in prompt can break restrictions and support effects such as SQL injection testing and reverse engineering.
+- 📝 **Instruction templates (prompt injection)**: Save common prompts as Markdown templates and switch Codex's global behavior profile with one click. The built-in prompt can break restrictions and support effects such as SQL injection testing and reverse engineering.
 - 📊 **Status monitoring**: Check the current workspace and running instances on the home page, then inspect account health, weekly remaining usage, available resets, and expiration times from profile management.
 - 🧰 **Environment workspace**: Review 30-day usage trends and account health, then manage MCP, Skills, AGENTS.md, the read-only session index, and per-account launch settings.
 - 🎨 **Codex skins**: Includes the Forge Aurora theme and supports importing, switching, pausing, and deleting background themes stored only on your device.
-- 🚀 **Selectable launch modes**: Supports account switching and isolated multi-instance mode for running multiple ChatGPT clients.
+- 🚀 **Selectable launch modes**: Supports account switching and isolated multi-instance mode for running multiple Codex clients.
 - 🌐 **Bilingual UI**: Built-in Chinese / English switching for different language environments.
 - 🔔 **Version updates**: Check for updates in the app, review release notes, download in the background, and restart to install.
 
@@ -59,16 +59,16 @@
 
 | Module | Details |
 | :--- | :--- |
-| 🧭 **Runtime workspace** | Check the ChatGPT client, profile root, authentication, and configuration from the home page, view running instances, and quickly launch the current account or open common tools. |
+| 🧭 **Runtime workspace** | Check the Codex client, profile root, authentication, and configuration from the home page, view running instances, and quickly launch the current account or open common tools. |
 | 👥 **Profile management** | Search, filter, and sort accounts, then use the profile inspector to launch or close an account, refresh usage, view details, export a backup, rename, or delete it. Data is stored in `~/Documents/CodexProfiles` by default. |
-| 🔑 **Auth import** | Uses the official Codex App Server for ChatGPT browser sign-in, and supports saving the current account or importing `auth.json`. |
-| 🚀 **One-click switch and launch** | Writes the selected account into the current user's `.codex` directory and launches ChatGPT. If ChatGPT is running, the app prompts you to close it first. |
-| 📦 **Isolated multi-instance launch** | Featured capability. Creates one shared copy from the installed ChatGPT client. All accounts use that copy with separate `CodexHome`, `APPDATA`, `LOCALAPPDATA`, and `--user-data-dir` environments. |
+| 🔑 **Auth import** | Uses the official Codex App Server for Codex browser sign-in, and supports saving the current account or importing `auth.json`. |
+| 🚀 **One-click switch and launch** | Writes the selected account into the current user's `.codex` directory and launches Codex. If Codex is running, the app prompts you to close it first. |
+| 📦 **Isolated multi-instance launch** | Featured capability. Creates one shared copy from the installed Codex client. All accounts use that copy with separate `CodexHome`, `APPDATA`, `LOCALAPPDATA`, and `--user-data-dir` environments. |
 | 📊 **Usage snapshots** | Uses the official Codex App Server to read and cache weekly remaining usage, available resets, each reset's expiration time, and limit status. |
 | 🧰 **Environment workspace** | Keeps 30 days of usage history, provides threshold alerts, config diffs and field-level sync, health checks and repairs, and manages MCP, Skills, AGENTS.md, a read-only session index, and launch settings. It remembers the last open tab and asks for confirmation before discarding unsaved changes or performing destructive actions. |
 | 🔐 **Encrypted profile backups** | Protects profile backups with Windows DPAPI while keeping legacy ZIP restore compatibility; sessions, logs, caches, and client files stay excluded. |
 | 🛠️ **TOML editor** | Opens and saves the active `config.toml`, backs it up automatically before saving, and warns about unsaved changes before switching configurations or leaving the page. |
-| 📝 **Instruction templates (prompt injection)** | Saves Markdown prompt templates locally. Enabling a template copies it into the active ChatGPT config directory and points `model_instructions_file` in `config.toml` to that template. |
+| 📝 **Instruction templates (prompt injection)** | Saves Markdown prompt templates locally. Enabling a template copies it into the active Codex config directory and points `model_instructions_file` in `config.toml` to that template. |
 | 🎨 **Codex skins** | Includes the Forge Aurora theme and supports importing, switching, pausing, and deleting local background themes. Images stay in the local Forge data directory, with support for both account-switch and isolated multi-instance modes. |
 | ⚙️ **Launch and directory settings** | Switch launch modes, migrate the account profile root, and enable Codex Forge to start after Windows sign-in. |
 | 🔔 **In-app updates** | Supports silent update checks, manual update checks, release notes, background downloads, and restart-to-install. |
@@ -78,7 +78,7 @@
 
 ### 1. 🧭 Runtime Workspace and Profile Inspector
 
-The home page brings together the current workspace, launch mode, selected account, and ChatGPT instances. It checks whether the client, profile root, `auth.json`, and `config.toml` are ready. From there, you can launch the current account or quickly open profile management, the TOML editor, instruction templates, and app settings.
+The home page brings together the current workspace, launch mode, selected account, and Codex instances. It checks whether the client, profile root, `auth.json`, and `config.toml` are ready. From there, you can launch the current account or quickly open profile management, the TOML editor, instruction templates, and app settings.
 
 The profile management page supports account search, status filters, and multiple sort orders. After you select an account, the profile inspector groups its information and actions into:
 
@@ -95,15 +95,15 @@ Each account profile stores its own login credentials and config:
 ~/Documents/CodexProfiles/<profile-id>/CodexHome/config.toml
 ```
 
-Account-switching mode only replaces `auth.json`; global ChatGPT settings such as model and proxy always use the system `~/.codex/config.toml`. Isolated multi-instance mode uses each account's own `CodexHome/config.toml`.
+Account-switching mode only replaces `auth.json`; global Codex settings such as model and proxy always use the system `~/.codex/config.toml`. Isolated multi-instance mode uses each account's own `CodexHome/config.toml`.
 
 ### 3. 🔑 Auth Management
 
 There are three ways to add an account:
 
-- 🌐 **Browser OAuth**: Uses ChatGPT's built-in Codex App Server to open the official sign-in flow and saves the result only to the new profile.
+- 🌐 **Browser OAuth**: Uses Codex's built-in Codex App Server to open the official sign-in flow and saves the result only to the new profile.
 - 💾 **Save current account**: Copies the current system `~/.codex/auth.json`.
-- 📁 **Upload local file**: Imports an existing ChatGPT login file from disk.
+- 📁 **Upload local file**: Imports an existing Codex login file from disk.
 
 > 💡 Usage refresh runs through the official App Server. Updated authentication is written back to the matching profile.
 
@@ -123,7 +123,7 @@ Before saving changes, it validates the TOML content and backs up the old file t
 
 ### 5. 📝 Instruction Template Management (Prompt Injection)
 
-Instruction templates let you quickly switch ChatGPT's system-level behavior prompt. You can save common workflows, coding rules, review standards, or one of the bundled restriction-breaking prompts as Markdown templates and enable them when needed.
+Instruction templates let you quickly switch Codex's system-level behavior prompt. You can save common workflows, coding rules, review standards, or one of the bundled restriction-breaking prompts as Markdown templates and enable them when needed.
 
 Codex Forge currently includes these restriction-breaking prompt templates:
 
@@ -132,11 +132,11 @@ Codex Forge currently includes these restriction-breaking prompt templates:
 
 Codex Forge automatically adds both templates to **Instruction templates** at startup, but leaves them disabled and does not overwrite existing templates with the same filenames.
 
-You can enable or disable them directly from the **Instruction templates** page. After a template is enabled, Codex Forge writes the matching `.md` file into the ChatGPT config directory and updates `model_instructions_file` in `config.toml`.
+You can enable or disable them directly from the **Instruction templates** page. After a template is enabled, Codex Forge writes the matching `.md` file into the Codex config directory and updates `model_instructions_file` in `config.toml`.
 
 | Comparison | Default instructions | Restriction-breaking prompt templates |
 | :--- | :--- | :--- |
-| Positioning | General ChatGPT assistant | High-freedom developer mode |
+| Positioning | General Codex assistant | High-freedom developer mode |
 | Strategy | More conservative and more likely to give generic refusals | Emphasizes execution, analysis, and verifiable results |
 | Style | Standard Q&A and coding assistance | Direct, broad coverage, fewer explanation blockers |
 | Best for | Daily coding and general questions | Code auditing, security research, and complex debugging |
@@ -155,7 +155,7 @@ After enabling -> More likely to provide security research methodology, testing 
 ```
 
 When a template is enabled, Codex Forge does three things:
-- Copies the template into the active ChatGPT config directory.
+- Copies the template into the active Codex config directory.
 - Writes `model_instructions_file = "./template-file-name.md"` into `config.toml`.
 - In isolated multi-instance mode, supports syncing to the current account, a selected account, or all accounts.
 
@@ -165,8 +165,8 @@ This means you can switch between default instructions, team rules, and a less r
 
 In addition to the default account-switching mode, Codex Forge's featured launch capability is isolated multi-instance mode:
 
-- **Account-switching mode**: The default mode. Switching accounts writes into the system `~/.codex`; one ChatGPT client is recommended.
-- **Isolated multi-instance mode**: On first launch, Forge creates one shared copy from the installed ChatGPT client. All accounts use that copy with separate configuration and runtime data.
+- **Account-switching mode**: The default mode. Switching accounts writes into the system `~/.codex`; one Codex client is recommended.
+- **Isolated multi-instance mode**: On first launch, Forge creates one shared copy from the installed Codex client. All accounts use that copy with separate configuration and runtime data.
 
 Isolated multi-instance mode separates `CodexHome`, `APPDATA`, `LOCALAPPDATA`, and the browser `--user-data-dir`. The copied shared client is stored once under the profile root:
 
@@ -192,26 +192,26 @@ The Codex Skins page includes the built-in **Forge Aurora** theme and lets you i
 
 The Settings page centralizes Codex Forge's own configuration:
 
-- **Account profile location**: Change the account profile root. The app prompts you to close running ChatGPT instances before migration.
+- **Account profile location**: Change the account profile root. The app prompts you to close running Codex instances before migration.
 - **Launch mode**: Switch between account-switching and isolated multi-instance mode. The first multi-instance launch copies one shared client from the installed app.
 - **Auto start**: Start Codex Forge automatically after Windows sign-in.
 - **Language switching**: Switch between Chinese and English UI.
 - **Version updates**: Show the current version and check for updates manually. When a new version is available, you can view release notes, download in the background, and restart to install.
 - **Project links**: The About area provides GitHub and Gitee project links for source code and release information.
 
-### 9. 🧠 Smart ChatGPT Launch Detection
+### 9. 🧠 Smart Codex Launch Detection
 
 When launching an account, Codex Forge resolves the launch source in this order:
 
-1. Saved ChatGPT desktop executable path.
-2. The currently running ChatGPT main process.
+1. Saved Codex desktop executable path.
+2. The currently running Codex main process.
 3. The executable and app identifier from the `OpenAI.Codex` / `OpenAI.ChatGPT` AppX manifest.
 
 ---
 
 ## 📁 Core Paths
 
-**Active ChatGPT user config**:
+**Active Codex user config**:
 
 ```text
 ~/.codex/auth.json
@@ -253,12 +253,12 @@ When launching an account, Codex Forge resolves the launch source in this order:
   - uv, the Python package manager
   - yarn
   - Bash environment, Git Bash is recommended on Windows
-- Software dependency: Install the ChatGPT desktop app from Microsoft Store.
+- Software dependency: Install the Codex desktop app from Microsoft Store.
 
-*Check the ChatGPT desktop app (optional):*
+*Check the Codex desktop app (optional):*
 
 ```powershell
-winget list ChatGPT -s msstore
+winget list Codex -s msstore
 ```
 
 ### 🚀 Development

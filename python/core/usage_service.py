@@ -93,7 +93,7 @@ def remove_cached_usage(profile_name):
 
 
 def _build_profile_usage(profile_dir, share_system_config=False, use_codex_home_auth=False):
-    """通过官方 App Server 读取账号和 ChatGPT 额度。"""
+    """通过官方 App Server 读取账号和 Codex 额度。"""
     profile_dir = Path(profile_dir)
     auth_path = _resolve_usage_auth_path(profile_dir, use_codex_home_auth)
     if not auth_path.exists():
@@ -222,10 +222,10 @@ def _normalize_usage_error(message):
     """把 App Server 常见错误转成用户可理解的提示。"""
     lowered = message.lower()
     if "api key" in lowered or "apikey" in lowered:
-        return "API Key 账号不提供 ChatGPT 套餐额度"
+        return "API Key 账号不提供 Codex 套餐额度"
     if "unauthorized" in lowered or "not logged" in lowered or "expired" in lowered:
         return "登录令牌已过期，请重新授权后再刷新额度"
-    if message.startswith("未找到 ChatGPT 内置 Codex App Server"):
+    if message.startswith("未找到 Codex 内置 Codex App Server"):
         return message
     return f"额度读取失败：{message}"
 

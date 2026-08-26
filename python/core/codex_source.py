@@ -21,7 +21,7 @@ def read_running_codex_commands():
 
 
 def read_running_codex_processes():
-    """读取当前所有 ChatGPT/Codex 客户端主进程。"""
+    """读取当前所有 Codex 客户端主进程。"""
     script = r"""
 $processes = Get-CimInstance Win32_Process -Filter "Name = 'ChatGPT.exe' OR Name = 'Codex.exe'"
 @($processes | Select-Object Name, ProcessId, ExecutablePath, CommandLine) | ConvertTo-Json -Compress
@@ -69,7 +69,7 @@ def _is_client_main_process(process):
 
 
 def find_windowsapps_codex_path():
-    """自动查找微软商店版 ChatGPT/Codex 主程序路径。"""
+    """自动查找微软商店版 Codex 主程序路径。"""
     running_path = find_running_codex_path()
     if running_path and is_windowsapps_codex_path(running_path):
         return running_path
@@ -264,7 +264,7 @@ def portable_app_needs_update(source_codex_path, target_app_dir):
 
 
 def prepare_portable_codex_path(source_codex_path, profile_dir, allow_update=True, progress_callback=None):
-    """从安装源原子复制多开账号共用的 ChatGPT 客户端副本。"""
+    """从安装源原子复制多开账号共用的 Codex 客户端副本。"""
     source_codex_path = Path(source_codex_path)
     source_app_dir = source_codex_path.parent
     profile_dir = Path(profile_dir)
@@ -282,7 +282,7 @@ def prepare_portable_codex_path(source_codex_path, profile_dir, allow_update=Tru
     free_bytes = shutil.disk_usage(profile_dir).free
     if free_bytes < required_bytes:
         raise OSError(
-            "磁盘空间不足：复制 ChatGPT 客户端需要至少 "
+            "磁盘空间不足：复制 Codex 客户端需要至少 "
             f"{required_bytes / 1024 ** 3:.2f} GB，当前可用 {free_bytes / 1024 ** 3:.2f} GB"
         )
 
@@ -292,7 +292,7 @@ def prepare_portable_codex_path(source_codex_path, profile_dir, allow_update=Tru
         _copy_app_directory(source_app_dir, staging_dir, source_size, progress_callback)
         staging_codex_path = staging_dir / source_codex_path.name
         if not staging_codex_path.is_file():
-            raise FileNotFoundError("ChatGPT 客户端复制不完整，未找到主程序")
+            raise FileNotFoundError("Codex 客户端复制不完整，未找到主程序")
         signature = get_source_signature(source_codex_path)
         signature["directory_size"] = get_directory_size(staging_dir)
         write_source_signature(staging_dir, signature)

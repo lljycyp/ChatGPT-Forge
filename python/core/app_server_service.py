@@ -29,7 +29,7 @@ CLIENT_INFO = {
 
 
 def read_account_and_rate_limits(profile_dir, auth_path, config_path):
-    """通过官方 App Server 读取账号状态和 ChatGPT 额度。"""
+    """通过官方 App Server 读取账号状态和 Codex 额度。"""
     auth_path = Path(auth_path)
     lock_path = auth_path.with_name(f".{auth_path.name}.app-server.lock")
     with _exclusive_file_lock(lock_path):
@@ -40,7 +40,7 @@ def read_account_and_rate_limits(profile_dir, auth_path, config_path):
                     account = account_result.get("account") if isinstance(account_result, dict) else None
                     account = account if isinstance(account, dict) else {}
                     if account.get("type") != "chatgpt":
-                        raise ValueError("API Key 账号不提供 ChatGPT 套餐额度")
+                        raise ValueError("API Key 账号不提供 Codex 套餐额度")
                     rate_limits = client.request("account/rateLimits/read")
             finally:
                 _sync_temporary_auth(codex_home / "auth.json", auth_path)
@@ -48,7 +48,7 @@ def read_account_and_rate_limits(profile_dir, auth_path, config_path):
 
 
 def login_with_chatgpt_browser():
-    """使用官方 App Server 完成 ChatGPT 浏览器登录并返回 auth.json。"""
+    """使用官方 App Server 完成 Codex 浏览器登录并返回 auth.json。"""
     with _managed_temporary_directory(prefix="codex-forge-login-") as codex_home:
         (codex_home / "config.toml").write_text(
             'cli_auth_credentials_store = "file"\n',
@@ -66,7 +66,7 @@ def login_with_chatgpt_browser():
             auth_url = str(login.get("authUrl") or "")
             login_id = str(login.get("loginId") or "")
             if not auth_url or not login_id:
-                raise RuntimeError("ChatGPT 登录未返回有效授权地址")
+                raise RuntimeError("Codex 登录未返回有效授权地址")
             if not webbrowser.open(auth_url):
                 raise RuntimeError(f"无法自动打开浏览器，请手动访问：{auth_url}")
             completed = client.wait_notification(
@@ -75,26 +75,26 @@ def login_with_chatgpt_browser():
                 APP_SERVER_LOGIN_TIMEOUT_SECONDS,
             )
             if not completed.get("success"):
-                raise RuntimeError(str(completed.get("error") or "ChatGPT 登录失败"))
+                raise RuntimeError(str(completed.get("error") or "Codex 登录失败"))
             account_result = client.request("account/read", {"refreshToken": False})
             account = account_result.get("account") if isinstance(account_result, dict) else None
             if not isinstance(account, dict) or account.get("type") != "chatgpt":
-                raise RuntimeError("ChatGPT 登录完成，但 App Server 未返回有效账号")
+                raise RuntimeError("Codex 登录完成，但 App Server 未返回有效账号")
 
         auth_path = codex_home / "auth.json"
         if not auth_path.exists():
-            raise RuntimeError("ChatGPT 登录成功，但未生成 auth.json")
+            raise RuntimeError("Codex 登录成功，但未生成 auth.json")
         try:
             auth_json = json.loads(auth_path.read_text(encoding="utf-8"))
         except (OSError, json.JSONDecodeError) as exc:
-            raise RuntimeError(f"读取 ChatGPT 登录信息失败：{exc}") from exc
+            raise RuntimeError(f"读取 Codex 登录信息失败：{exc}") from exc
         if not isinstance(auth_json, dict):
-            raise RuntimeError("ChatGPT 登录信息格式无效")
+            raise RuntimeError("Codex 登录信息格式无效")
         return auth_json
 
 
 def find_codex_cli_path(profile_dir=None):
-    """定位新版 ChatGPT 内置的可执行 Codex App Server。"""
+    """定位新版 Codex 内置的可执行 Codex App Server。"""
     candidates = []
     env_path = str(os.environ.get("CODEX_CLI_PATH") or "").strip()
     if env_path:
@@ -120,7 +120,7 @@ def find_codex_cli_path(profile_dir=None):
     for candidate in candidates:
         if candidate.is_file():
             return candidate
-    raise FileNotFoundError("未找到 ChatGPT 内置 Codex App Server，请更新或重新安装 ChatGPT 桌面应用")
+    raise FileNotFoundError("未找到 Codex 内置 Codex App Server，请更新或重新安装 Codex 桌面应用")
 
 
 @contextmanager

@@ -118,7 +118,7 @@ def ensure_profile_config_path(profile_dir):
 
 
 def sanitize_profile_config_file(config_path):
-    """移除不能跨 ChatGPT 实例复制的动态配置。"""
+    """移除不能跨 Codex 实例复制的动态配置。"""
     config_path = Path(config_path)
     current = config_path.read_text(encoding="utf-8") if config_path.exists() else ""
     sanitized = sanitize_profile_config_text(current)

@@ -91,13 +91,13 @@ async function notifyLowUsage(profiles: ProfileSummary[], t: (text: string) => s
       if (usage.resetAt) localStorage.setItem(resetKey, String(usage.resetAt));
       const previousWindowEnded = previousReset > 0 && previousReset <= Date.now() / 1000;
       if (previousWindowEnded && usage.resetAt && usage.resetAt > previousReset && usage.remainingPercent > threshold) {
-        await window.launcherApi.showNotification(t("ChatGPT 额度已重置"), `${profile.name} ${label} ${Math.round(usage.remainingPercent)}%`);
+        await window.launcherApi.showNotification(t("Codex 额度已重置"), `${profile.name} ${label} ${Math.round(usage.remainingPercent)}%`);
       }
       if (usage.remainingPercent > threshold) continue;
       const key = `quotaAlert:${profile.id}:${usage.windowSeconds}:${usage.resetAt ?? "unknown"}:${threshold}`;
       if (localStorage.getItem(key)) continue;
       localStorage.setItem(key, String(Date.now()));
-      await window.launcherApi.showNotification(t("ChatGPT 额度提醒"), `${profile.name} ${label} ${Math.round(usage.remainingPercent)}%`);
+      await window.launcherApi.showNotification(t("Codex 额度提醒"), `${profile.name} ${label} ${Math.round(usage.remainingPercent)}%`);
     }
   }
 }
@@ -161,7 +161,7 @@ export default function App() {
       const sizeText = progress.totalBytes
         ? ` · ${formatBytes(progress.copiedBytes ?? 0)} / ${formatBytes(progress.totalBytes)}`
         : "";
-      setTaskText(`${t("正在复制 ChatGPT 客户端")} ${progress.percent}%${sizeText}`);
+      setTaskText(`${t("正在复制 Codex 客户端")} ${progress.percent}%${sizeText}`);
     });
   }, [t]);
 

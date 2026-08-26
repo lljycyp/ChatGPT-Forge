@@ -136,7 +136,7 @@ export function Profiles({ profiles, runningCount, launchMode, privacyMode, runC
         profile.running ? "stop_profile" : "launch_profile",
         { name: profile.name, stopRunningFirst },
         profile.running
-          ? t("已关闭 ChatGPT")
+          ? t("已关闭 Codex")
           : hasRunningCodex
             ? t("已切换")
             : t("已启动"),
@@ -165,8 +165,8 @@ export function Profiles({ profiles, runningCount, launchMode, privacyMode, runC
     Modal.confirm({
       title: t("确认切换账号"),
       content: language === "en-US"
-        ? `ChatGPT is running. Close it and launch "${profile.name}"?`
-        : `检测到 ChatGPT 正在运行。确认关闭当前 ChatGPT，并切换启动「${profile.name}」？`,
+        ? `Codex is running. Close it and launch "${profile.name}"?`
+        : `检测到 Codex 正在运行。确认关闭当前 Codex，并切换启动「${profile.name}」？`,
       okText: t("关闭并启动"),
       cancelText: t("取消"),
       onOk: () => executeProfileToggle(profile, true),
@@ -499,15 +499,15 @@ export function Profiles({ profiles, runningCount, launchMode, privacyMode, runC
           </Form.Item>
           {createMode === "oauth" ? (
             <Typography.Paragraph className="!mt-0 text-sm text-slate-500">
-              {language === "en-US" ? "Open the official ChatGPT browser sign-in. The result is saved only to the new account profile and will not overwrite the current ChatGPT account." : "将打开 ChatGPT 官方浏览器登录，授权结果只保存到新账号资料目录，不会覆盖当前 ChatGPT 账号。"}
+              {language === "en-US" ? "Open the official Codex browser sign-in. The result is saved only to the new account profile and will not overwrite the current Codex account." : "将打开 Codex 官方浏览器登录，授权结果只保存到新账号资料目录，不会覆盖当前 Codex 账号。"}
             </Typography.Paragraph>
           ) : createMode === "file" ? (
             <Typography.Paragraph className="!mt-0 text-sm text-slate-500">
-              {language === "en-US" ? "Choose a local " : "将从本地选择 "}<Typography.Text code>auth.json</Typography.Text>{language === "en-US" ? ". It is saved only to the new account profile and will not overwrite the current ChatGPT account." : "，只保存到新账号资料目录，不会覆盖当前 ChatGPT 账号。"}
+              {language === "en-US" ? "Choose a local " : "将从本地选择 "}<Typography.Text code>auth.json</Typography.Text>{language === "en-US" ? ". It is saved only to the new account profile and will not overwrite the current Codex account." : "，只保存到新账号资料目录，不会覆盖当前 Codex 账号。"}
             </Typography.Paragraph>
           ) : (
             <Typography.Paragraph className="!mt-0 text-sm text-slate-500">
-              {language === "en-US" ? "Save the current ChatGPT " : "将保存当前 ChatGPT 的 "}<Typography.Text code>auth.json</Typography.Text>{language === "en-US" ? ". The system " : "；系统 "}
+              {language === "en-US" ? "Save the current Codex " : "将保存当前 Codex 的 "}<Typography.Text code>auth.json</Typography.Text>{language === "en-US" ? ". The system " : "；系统 "}
               <Typography.Text code>config.toml</Typography.Text>{language === "en-US" ? " will be used as the initial isolated-mode config." : " 会作为多开隔离模式的初始账号配置。"}
             </Typography.Paragraph>
           )}
@@ -659,7 +659,7 @@ function RuntimeWorkspace({
         </div>
       </div>
       <div className="flex min-w-0 flex-col justify-center px-4 py-3.5 max-[960px]:border-b max-[960px]:border-slate-100">
-          <div className="text-[10.5px] font-bold tracking-[0.06em] text-slate-400">{t("当前 ChatGPT 实例")}</div>
+          <div className="text-[10.5px] font-bold tracking-[0.06em] text-slate-400">{t("当前 Codex 实例")}</div>
           <div className="mt-1.5 flex flex-wrap gap-2">
             {runningProfiles.length ? runningProfiles.map((profile) => (
               <button
@@ -967,7 +967,7 @@ function ProfileDetailPanel({
                   <div className="grid gap-4">
                     <InfoGrid
                       rows={[
-                        [t("认证方式"), detail.auth.authMode === "api" ? "API Key" : t("ChatGPT 登录")],
+                        [t("认证方式"), detail.auth.authMode === "api" ? "API Key" : t("Codex 登录")],
                         ["Email", email],
                         ["Account ID", accountId],
                         [t("套餐"), planText],

@@ -293,7 +293,7 @@ def create_auth_file_profile(payload):
     except json.JSONDecodeError as exc:
         raise ValueError("auth.json 内容不是有效的 JSON") from exc
     if not auth_kind(auth_json):
-        raise ValueError("auth.json 内容不是有效的 ChatGPT 或 API Key 登录信息")
+        raise ValueError("auth.json 内容不是有效的 Codex 或 API Key 登录信息")
     profiles = config.setdefault("profiles", [])
     profiles.append(name)
     save_config(config)
@@ -749,7 +749,7 @@ def launch_profile(payload):
     logger.info("账号启动开始 名称=%s 是否先关闭运行中实例=%s", name, stop_running_first)
     if _running_codex_count() > 0:
         if not stop_running_first:
-            raise RuntimeError("检测到 ChatGPT 正在运行，请先关闭后再切换账号")
+            raise RuntimeError("检测到 Codex 正在运行，请先关闭后再切换账号")
         _stop_running_codex_processes()
 
     profile_dir = _get_profile_dir(config, name)
@@ -977,7 +977,7 @@ def _stop_profile_multi(config, payload):
 
 
 def _stop_running_codex_processes():
-    """关闭当前运行的 ChatGPT/Codex 客户端主进程。"""
+    """关闭当前运行的 Codex 客户端主进程。"""
     processes = read_running_codex_processes()
     logger.info("关闭 Codex 进程开始 数量=%s", len(processes))
     stopped = _stop_client_processes(processes)
@@ -1748,11 +1748,11 @@ def _resolve_codex_launch_spec(config):
             "display": store_app_id,
         }
 
-    raise FileNotFoundError("未找到 ChatGPT 桌面客户端，请在设置中重新识别或确认已安装")
+    raise FileNotFoundError("未找到 Codex 桌面客户端，请在设置中重新识别或确认已安装")
 
 
 def _resolve_codex_app_source_path(config):
-    """定位用于复制共享客户端副本的 ChatGPT 安装源。"""
+    """定位用于复制共享客户端副本的 Codex 安装源。"""
     configured_path = str(config.get("codex_path") or "").strip()
     configured_app_path = _resolve_configured_codex_app_path(configured_path)
     if configured_app_path:
@@ -1767,7 +1767,7 @@ def _resolve_codex_app_source_path(config):
         save_config(config)
         return Path(detected_path)
 
-    raise FileNotFoundError("多开隔离模式需要可识别的 ChatGPT 桌面客户端，请先刷新来源或安装客户端")
+    raise FileNotFoundError("多开隔离模式需要可识别的 Codex 桌面客户端，请先刷新来源或安装客户端")
 
 
 def _resolve_configured_codex_app_path(configured_path):
@@ -1914,7 +1914,7 @@ def _launch_default_codex(profile_name="", skin_port=None):
         return {"processId": process.pid}
     except FileNotFoundError as exc:
         logger.exception("Codex 启动失败 显示=%s 错误=%s", launch_spec["display"], exc)
-        raise FileNotFoundError("未找到 ChatGPT 桌面客户端，请在设置中重新识别或确认已安装") from exc
+        raise FileNotFoundError("未找到 Codex 桌面客户端，请在设置中重新识别或确认已安装") from exc
 
 
 def _get_directory_size(directory):

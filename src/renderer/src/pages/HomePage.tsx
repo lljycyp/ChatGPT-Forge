@@ -37,7 +37,7 @@ export function HomePage({ appState, profiles, onOpenView, onLaunchProfile }: Ho
     ?? profiles.find((profile) => profile.active)
     ?? null;
   const environmentChecks: EnvironmentCheck[] = [
-    { label: t("ChatGPT 客户端"), ok: appState.codexCommandAvailable },
+    { label: t("Codex 客户端"), ok: appState.codexCommandAvailable },
     { label: t("账号资料根目录"), ok: appState.profileRootExists },
     { label: "auth.json", ok: appState.activeAuthExists },
     { label: "config.toml", ok: appState.activeConfigExists },
@@ -48,11 +48,11 @@ export function HomePage({ appState, profiles, onOpenView, onLaunchProfile }: Ho
   const heroTitle = environmentReady ? t("Codex Forge 已就绪") : t("当前工作环境存在需要处理的问题");
   const heroDescription = environmentReady
     ? t("当前工作环境可以正常使用")
-    : t("请先处理环境问题后再启动 ChatGPT");
+    : t("请先处理环境问题后再启动 Codex");
   const primaryText = hasRunningInstance
     ? t("查看运行实例")
     : currentProfile
-      ? t("启动 ChatGPT")
+      ? t("启动 Codex")
       : t("选择账号");
 
   const handlePrimaryAction = () => {

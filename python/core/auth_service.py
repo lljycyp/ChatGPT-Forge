@@ -19,11 +19,11 @@ def extract_auth(auth_json):
     tokens = auth_tokens(auth_json)
     if not tokens:
         if auth_kind(auth_json) == "api":
-            raise ValueError("API Key 账号不提供 ChatGPT 套餐额度")
+            raise ValueError("API Key 账号不提供 Codex 套餐额度")
         mode = str(auth_json.get("auth_mode") or "").lower() if isinstance(auth_json, dict) else ""
         if mode and mode not in ("chatgpt", "chatgpt_auth_tokens"):
-            raise ValueError("当前账号不是 ChatGPT 登录模式，无法读取额度")
-        raise ValueError("登录信息缺少 ChatGPT 令牌，请重新授权")
+            raise ValueError("当前账号不是 Codex 登录模式，无法读取额度")
+        raise ValueError("登录信息缺少 Codex 令牌，请重新授权")
 
     access_token = clean_string(tokens.get("access_token"))
     id_token = clean_string(tokens.get("id_token"))
@@ -40,7 +40,7 @@ def extract_auth(auth_json):
     if not account_id:
         account_id = clean_string(auth_claim.get("chatgpt_account_id"))
     if not account_id:
-        raise ValueError("无法从登录信息识别 ChatGPT 账号编号")
+        raise ValueError("无法从登录信息识别 Codex 账号编号")
 
     return {
         "accessToken": access_token,
@@ -66,7 +66,7 @@ def auth_tokens(auth_json):
 
 
 def auth_kind(auth_json):
-    """识别 Forge 支持的 ChatGPT 或 API Key 认证。"""
+    """识别 Forge 支持的 Codex 或 API Key 认证。"""
     if auth_tokens(auth_json):
         return "chatgpt"
     if isinstance(auth_json, dict) and clean_string(auth_json.get("OPENAI_API_KEY")):
@@ -117,7 +117,7 @@ def auth_tokens_expire_within(auth_json, lead_seconds):
 
 
 def refresh_chatgpt_auth_tokens(auth_json):
-    """使用 refresh_token 刷新 ChatGPT 登录令牌，并返回新的 auth.json。"""
+    """使用 refresh_token 刷新 Codex 登录令牌，并返回新的 auth.json。"""
     auth = extract_auth(auth_json)
     refresh_token = auth.get("refreshToken")
     if not refresh_token:
@@ -182,7 +182,7 @@ def apply_refreshed_tokens(auth_json, payload):
 
 
 def extract_account_id_from_id_token(id_token):
-    """从 id_token 里读取 ChatGPT 账号编号。"""
+    """从 id_token 里读取 Codex 账号编号。"""
     claims = decode_jwt_payload(id_token)
     auth_claim = claims.get("https://api.openai.com/auth") if isinstance(claims, dict) else None
     if isinstance(auth_claim, dict):
