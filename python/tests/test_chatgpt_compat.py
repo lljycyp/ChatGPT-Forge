@@ -47,7 +47,7 @@ from core.profile_service import (
     require_file_auth_store,
     sanitize_profile_config_text,
 )
-from core.usage_service import _map_app_server_usage
+from core.usage_service import _map_app_server_usage, _merge_usage_results
 
 
 class ChatGptCompatibilityTest(unittest.TestCase):
@@ -586,6 +586,48 @@ class ChatGptCompatibilityTest(unittest.TestCase):
         )
 
         self.assertEqual(usage["oneWeek"]["remainingPercent"], 98)
+
+    def test_app_server_network_error_keeps_previous_successful_usage(self):
+        current = {
+            "fetchedAt": 100,
+            "oneWeek": {"remainingPercent": 94},
+            "error": None,
+        }
+        failed = {
+            "fetchedAt": 200,
+            "oneWeek": None,
+            "error": (
+                "额度读取失败：failed to fetch codex rate limits: error sending request for url "
+                "(https://chatgpt.com/backend-api/wham/usage)"
+            ),
+        }
+
+        with (
+            patch("core.usage_service.load_usage_cache", return_value={"work": current}),
+            patch("core.usage_service.save_usage_cache") as save_usage_cache,
+            patch("core.usage_service._file_lock"),
+        ):
+            result = _merge_usage_results({"work": failed}, started_at=150)
+
+        self.assertEqual(result["work"], current)
+        save_usage_cache.assert_called_once_with({"work": current})
+
+    def test_app_server_network_error_is_kept_without_successful_usage(self):
+        failed = {
+            "fetchedAt": 200,
+            "oneWeek": None,
+            "error": "额度读取失败：failed to fetch codex rate limits: error sending request for url",
+        }
+
+        with (
+            patch("core.usage_service.load_usage_cache", return_value={}),
+            patch("core.usage_service.save_usage_cache") as save_usage_cache,
+            patch("core.usage_service._file_lock"),
+        ):
+            result = _merge_usage_results({"work": failed}, started_at=150)
+
+        self.assertEqual(result["work"], failed)
+        save_usage_cache.assert_called_once_with({"work": failed})
 
     def test_app_server_temp_cleanup_retries_marketplace_race(self):
         path = Path(tempfile.gettempdir()) / "codex-forge-account-test"
