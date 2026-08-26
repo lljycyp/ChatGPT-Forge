@@ -308,16 +308,58 @@ def portable_app_needs_update(source_codex_path, target_app_dir):
     )
 
 
+def get_portable_app_dir(source_codex_path, profile_dir):
+    """商店版按包版本使用独立目录，避免升级时移动仍被外部程序占用的旧目录。"""
+    profile_dir = Path(profile_dir)
+    package_version = _get_appx_package_version(source_codex_path)
+    if not package_version:
+        return profile_dir / PORTABLE_APP_DIR_NAME
+    safe_version = re.sub(r"[^0-9A-Za-z._-]+", "-", package_version).strip("-.")
+    return profile_dir / f"{PORTABLE_APP_DIR_NAME}-{safe_version}"
+
+
+def find_latest_portable_app_dir(profile_dir):
+    """查找当前已准备好的最新共享客户端目录，兼容旧的固定目录。"""
+    profile_dir = Path(profile_dir)
+    candidates = [profile_dir / PORTABLE_APP_DIR_NAME, *profile_dir.glob(f"{PORTABLE_APP_DIR_NAME}-*")]
+    ready_dirs = [
+        directory
+        for directory in candidates
+        if (directory / "ChatGPT.exe").is_file() or (directory / "Codex.exe").is_file()
+    ]
+    if not ready_dirs:
+        return profile_dir / PORTABLE_APP_DIR_NAME
+
+    def sort_key(directory):
+        signature = read_source_signature(directory)
+        version = tuple(int(part) for part in re.findall(r"\d+", str(signature.get("package_version") or "")))
+        try:
+            modified_ns = directory.stat().st_mtime_ns
+        except OSError:
+            modified_ns = 0
+        return version, modified_ns
+
+    return max(ready_dirs, key=sort_key)
+
+
 def prepare_portable_codex_path(source_codex_path, profile_dir, allow_update=True, progress_callback=None):
     """从安装源原子复制多开账号共用的 Codex 客户端副本。"""
     source_codex_path = Path(source_codex_path)
     source_app_dir = source_codex_path.parent
     profile_dir = Path(profile_dir)
-    target_app_dir = profile_dir / PORTABLE_APP_DIR_NAME
+    target_app_dir = get_portable_app_dir(source_codex_path, profile_dir)
     target_codex_path = target_app_dir / source_codex_path.name
     _recover_portable_copy(profile_dir, target_app_dir)
     if target_codex_path.exists() and not portable_app_needs_update(source_codex_path, target_app_dir):
         return str(target_codex_path)
+    legacy_app_dir = profile_dir / PORTABLE_APP_DIR_NAME
+    legacy_codex_path = legacy_app_dir / source_codex_path.name
+    if (
+        target_app_dir != legacy_app_dir
+        and legacy_codex_path.exists()
+        and not portable_app_needs_update(source_codex_path, legacy_app_dir)
+    ):
+        return str(legacy_codex_path)
     if target_codex_path.exists() and not allow_update:
         return str(target_codex_path)
 
@@ -331,8 +373,8 @@ def prepare_portable_codex_path(source_codex_path, profile_dir, allow_update=Tru
             f"{required_bytes / 1024 ** 3:.2f} GB，当前可用 {free_bytes / 1024 ** 3:.2f} GB"
         )
 
-    staging_dir = profile_dir / f".{PORTABLE_APP_DIR_NAME}.new-{uuid.uuid4().hex}"
-    backup_dir = profile_dir / f".{PORTABLE_APP_DIR_NAME}.old-{uuid.uuid4().hex}"
+    staging_dir = profile_dir / f".{target_app_dir.name}.new-{uuid.uuid4().hex}"
+    backup_dir = profile_dir / f".{target_app_dir.name}.old-{uuid.uuid4().hex}"
     try:
         _copy_app_directory(source_app_dir, staging_dir, source_size, progress_callback)
         staging_codex_path = staging_dir / source_codex_path.name
@@ -375,14 +417,14 @@ def _replace_directory_with_retry(source_dir, target_dir, timeout_seconds=3):
 
 def _recover_portable_copy(profile_dir, target_app_dir):
     """恢复上次异常中断留下的副本交换目录。"""
-    old_dirs = sorted(profile_dir.glob(f".{PORTABLE_APP_DIR_NAME}.old-*"))
+    old_dirs = sorted(profile_dir.glob(f".{target_app_dir.name}.old-*"))
     if not target_app_dir.exists() and old_dirs:
         os.replace(old_dirs[-1], target_app_dir)
         old_dirs = old_dirs[:-1]
     for directory in old_dirs:
         if directory.is_dir():
             shutil.rmtree(directory, onerror=remove_readonly_path)
-    for directory in profile_dir.glob(f".{PORTABLE_APP_DIR_NAME}.new-*"):
+    for directory in profile_dir.glob(f".{target_app_dir.name}.new-*"):
         if directory.is_dir():
             shutil.rmtree(directory, onerror=remove_readonly_path)
 

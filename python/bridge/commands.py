@@ -16,10 +16,13 @@ import zipfile
 from pathlib import Path
 
 from core import db
+from core.app_server_service import _exclusive_file_lock
 from core.codex_source import (
     find_running_codex_path,
+    find_latest_portable_app_dir,
     find_windowsapps_codex_path,
     find_windowsapps_codex_path_by_package,
+    get_portable_app_dir,
     portable_app_needs_update,
     prepare_portable_codex_path,
     read_processes_in_directory,
@@ -30,7 +33,7 @@ from core.codex_source import (
     write_source_signature,
 )
 from core.config_store import load_config, save_config
-from core.constants import DB_PATH, DEFAULT_PROFILE_ROOT, PORTABLE_APP_DIR_NAME
+from core.constants import DB_PATH, DEFAULT_PROFILE_ROOT
 from core.auth_service import auth_kind, auth_tokens, extract_auth
 from core.logger import get_logger
 from core.oauth_service import login_with_browser
@@ -83,6 +86,13 @@ logger = get_logger(__name__)
 SYSTEM_PROFILE_NAME = "__system__"
 CODEX_SKIN_PORT_START = 19335
 CODEX_SKIN_PORT_COUNT = 100
+CODEX_CLIENT_OPERATION_COMMANDS = {
+    "ensure_codex_skin_sessions",
+    "launch_profile",
+    "set_codex_skin_enabled",
+    "set_launch_mode",
+    "stop_profile",
+}
 
 
 def ok(data=None):
@@ -155,7 +165,17 @@ def invoke(command, payload=None):
         return fail(f"未知命令：{command}")
     try:
         logger.info("命令开始 命令=%s", command)
-        result = handler(payload)
+        if command in CODEX_CLIENT_OPERATION_COMMANDS:
+            shared_app_root = _get_shared_app_root(load_config())
+            shared_app_root.mkdir(parents=True, exist_ok=True)
+            lock_path = shared_app_root / ".codex-client-operation.lock"
+            try:
+                with _exclusive_file_lock(lock_path, timeout_seconds=120):
+                    result = handler(payload)
+            except TimeoutError as exc:
+                raise RuntimeError("另一个 Codex 客户端操作仍在执行，请稍后重试") from exc
+        else:
+            result = handler(payload)
         logger.info("命令成功 命令=%s", command)
         return ok(result)
     except Exception as exc:
@@ -1501,7 +1521,7 @@ def _build_profile_summary(
     )
     active_profile = config.get("active_profile", "")
     running = _is_profile_running(config, profile_name, running_commands, legacy_profile)
-    target_app_dir = _get_shared_app_root(config) / PORTABLE_APP_DIR_NAME
+    target_app_dir = find_latest_portable_app_dir(_get_shared_app_root(config))
     portable_client_path = target_app_dir / "ChatGPT.exe"
     if not portable_client_path.exists():
         portable_client_path = target_app_dir / "Codex.exe"
@@ -1794,7 +1814,7 @@ def _prefer_latest_installed_store_path(configured_app_path):
 
 def _cleanup_orphaned_portable_processes(config, source_codex_path):
     """更新共享副本前清理已无主窗口的残留辅助进程。"""
-    target_app_dir = _get_shared_app_root(config) / PORTABLE_APP_DIR_NAME
+    target_app_dir = get_portable_app_dir(source_codex_path, _get_shared_app_root(config))
     if not target_app_dir.exists() or not portable_app_needs_update(source_codex_path, target_app_dir):
         return
     processes = read_processes_in_directory(target_app_dir)

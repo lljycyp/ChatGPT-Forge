@@ -22,6 +22,7 @@ from bridge.commands import (
     _stop_client_processes,
     export_profile_backup,
     ensure_codex_skin_sessions,
+    invoke,
     refresh_codex_source,
     set_launch_mode,
     set_codex_skin_enabled,
@@ -31,6 +32,7 @@ from core.codex_source import (
     _is_client_main_process,
     _find_appx_client_path,
     _replace_directory_with_retry,
+    find_latest_portable_app_dir,
     find_windowsapps_codex_path_by_package,
     portable_app_needs_update,
     prepare_portable_codex_path,
@@ -49,6 +51,20 @@ from core.usage_service import _map_app_server_usage
 
 
 class ChatGptCompatibilityTest(unittest.TestCase):
+    def test_client_lifecycle_command_uses_cross_process_lock(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            config = {"profile_root": temp_dir}
+            with (
+                patch("bridge.commands.load_config", return_value=config),
+                patch("bridge.commands.launch_profile", return_value={"name": "work"}),
+                patch("bridge.commands._exclusive_file_lock") as operation_lock,
+            ):
+                result = invoke("launch_profile", {"name": "work"})
+
+            expected_lock_path = Path(temp_dir) / ".shared" / ".codex-client-operation.lock"
+            operation_lock.assert_called_once_with(expected_lock_path, timeout_seconds=120)
+            self.assertTrue(result["ok"])
+
     def test_portable_update_stops_orphaned_helper_processes(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             profile_root = Path(temp_dir)
@@ -480,15 +496,18 @@ class ChatGptCompatibilityTest(unittest.TestCase):
             old_copy.mkdir(parents=True)
             (old_copy / "Codex.exe").write_bytes(b"old")
             portable_path = Path(prepare_portable_codex_path(package_app / "ChatGPT.exe", profile_dir))
-            self.assertEqual(portable_path, old_copy / "ChatGPT.exe")
+            current_copy = profile_dir / "CodexPortableApp-1.0"
+            self.assertEqual(portable_path, current_copy / "ChatGPT.exe")
             self.assertTrue(portable_path.exists())
-            self.assertGreater(read_source_signature(old_copy)["directory_size"], 0)
+            self.assertEqual((old_copy / "Codex.exe").read_bytes(), b"old")
+            self.assertEqual(find_latest_portable_app_dir(profile_dir), current_copy)
+            self.assertGreater(read_source_signature(current_copy)["directory_size"], 0)
             self.assertEqual(_get_appx_package_version(package_app / "ChatGPT.exe"), "1.0")
-            legacy_signature = read_source_signature(old_copy)
+            legacy_signature = read_source_signature(current_copy)
             legacy_signature.pop("package_version")
-            write_source_signature(old_copy, legacy_signature)
-            self.assertFalse(portable_app_needs_update(package_app / "ChatGPT.exe", old_copy))
-            self.assertEqual(read_source_signature(old_copy)["package_version"], "1.0")
+            write_source_signature(current_copy, legacy_signature)
+            self.assertFalse(portable_app_needs_update(package_app / "ChatGPT.exe", current_copy))
+            self.assertEqual(read_source_signature(current_copy)["package_version"], "1.0")
 
     def test_cim_process_and_appx_manifest_payloads_are_parsed(self):
         process_payload = json.dumps([

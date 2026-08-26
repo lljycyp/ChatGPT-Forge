@@ -13,7 +13,7 @@ from collections import deque
 from contextlib import contextmanager
 from pathlib import Path
 
-from core.constants import PORTABLE_APP_DIR_NAME
+from core.codex_source import find_latest_portable_app_dir
 from core.path_utils import remove_readonly_path
 from core.profile_service import sanitize_profile_config_text, write_profile_auth_json
 
@@ -112,7 +112,8 @@ def find_codex_cli_path(profile_dir=None):
 
     if profile_dir:
         profile_dir = Path(profile_dir)
-        candidates.append(profile_dir.parent / ".shared" / PORTABLE_APP_DIR_NAME / "resources" / "codex.exe")
+        shared_app_root = profile_dir.parent / ".shared"
+        candidates.append(find_latest_portable_app_dir(shared_app_root) / "resources" / "codex.exe")
 
     command_path = shutil.which("codex")
     if command_path:
