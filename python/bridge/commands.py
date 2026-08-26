@@ -102,6 +102,7 @@ def invoke(command, payload=None):
         "delete_profile": delete_profile,
         "export_profile_backup": export_profile_backup,
         "get_app_state": get_app_state,
+        "get_runtime_status": get_runtime_status,
         "get_shell_snapshot": get_shell_snapshot,
         "get_diagnostics": get_diagnostics,
         "get_profile_detail": get_profile_detail,
@@ -170,6 +171,21 @@ def get_app_state(_payload=None):
     running_processes = read_running_codex_processes()
     running_commands = _commands_from_processes(running_processes)
     return _build_app_state(config, running_processes, running_commands)
+
+
+def get_runtime_status(_payload=None):
+    """只读取客户端进程状态，供界面轻量轮询。"""
+    config = load_config()
+    running_processes = read_running_codex_processes()
+    running_commands = _commands_from_processes(running_processes)
+    legacy_profile = _get_legacy_system_running_profile(config, running_processes)
+    return {
+        "runningCount": _running_count_for_mode(config, running_processes, running_commands),
+        "profiles": {
+            profile_name: _is_profile_running(config, profile_name, running_commands, legacy_profile)
+            for profile_name in config.get("profiles", [])
+        },
+    }
 
 
 def get_shell_snapshot(_payload=None):

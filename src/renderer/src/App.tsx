@@ -13,9 +13,10 @@ import { CodexSkinPage } from "./pages/CodexSkinPage";
 import { SettingsPage } from "./pages/SettingsPage";
 import { WorkspacePage } from "./pages/WorkspacePage";
 import codexForgeLogo from "./assets/codex-forge-logo.png";
-import type { AppState, ProfileSummary, ProfileUsage, RunCommand, UpdateEvent, ViewKey } from "./types";
+import type { AppState, ProfileSummary, ProfileUsage, RunCommand, RuntimeStatus, UpdateEvent, ViewKey } from "./types";
 
 const { Content } = Layout;
+const runtimeStatusPollMs = 3 * 1000;
 const usageAutoRefreshMs = 5 * 60 * 1000;
 const privacyModeStorageKey = "codexForgePrivacyMode";
 type UpdateModalEvent = Exclude<UpdateEvent, { status: "error" } | { status: "not-available" }>;
@@ -117,6 +118,7 @@ export default function App() {
   const refreshTokenRef = useRef(0);
   const commandTokenRef = useRef(0);
   const autoUsageRefreshingRef = useRef(false);
+  const runtimeStatusRefreshingRef = useRef(false);
   const showUpdateProgressRef = useRef(false);
   const [updateEvent, setUpdateEvent] = useState<UpdateModalEvent | null>(null);
   const [updateModalOpen, setUpdateModalOpen] = useState(false);
@@ -265,6 +267,55 @@ export default function App() {
     void refreshUsageSilently();
     return () => window.clearInterval(timer);
   }, [initialLoading, t]);
+
+  useEffect(() => {
+    if (initialLoading || activeView !== "profiles") {
+      return undefined;
+    }
+
+    const refreshRuntimeStatus = async () => {
+      if (document.hidden || runtimeStatusRefreshingRef.current) {
+        return;
+      }
+      runtimeStatusRefreshingRef.current = true;
+      try {
+        const runtimeStatus = await invokeLauncher<RuntimeStatus>("get_runtime_status");
+        setAppState((current) => (
+          current.runningCount === runtimeStatus.runningCount
+            ? current
+            : { ...current, runningCount: runtimeStatus.runningCount }
+        ));
+        const runningChanged = profilesRef.current.some(
+          (profile) => profile.running !== (runtimeStatus.profiles[profile.name] ?? false),
+        );
+        if (runningChanged) {
+          const nextProfiles = profilesRef.current.map((profile) => ({
+            ...profile,
+            running: runtimeStatus.profiles[profile.name] ?? false,
+          }));
+          profilesRef.current = nextProfiles;
+          setProfiles(nextProfiles);
+        }
+      } catch {
+        // 后台状态检查失败时保持现有界面状态，避免打扰用户。
+      } finally {
+        runtimeStatusRefreshingRef.current = false;
+      }
+    };
+
+    const handleFocus = () => {
+      void refreshRuntimeStatus();
+    };
+    const timer = window.setInterval(() => {
+      void refreshRuntimeStatus();
+    }, runtimeStatusPollMs);
+    window.addEventListener("focus", handleFocus);
+    void refreshRuntimeStatus();
+    return () => {
+      window.clearInterval(timer);
+      window.removeEventListener("focus", handleFocus);
+    };
+  }, [activeView, initialLoading]);
 
   const runCommand = useCallback<RunCommand>(
     async (command, payload, successText = t("操作完成"), options) => {

@@ -4,7 +4,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from bridge.commands import _get_profile_dir, _get_shared_app_root, rename_profile
+from bridge.commands import _get_profile_dir, _get_shared_app_root, get_runtime_status, rename_profile
 from core import db
 from core.app_server_service import find_codex_cli_path
 from core.constants import PORTABLE_APP_DIR_NAME
@@ -13,6 +13,20 @@ from core.profile_service import prepare_profile_codex_home, sync_codex_home_to_
 
 
 class ProfileStorageTest(unittest.TestCase):
+    def test_runtime_status_uses_one_process_snapshot(self):
+        config = {"profiles": ["work"], "active_profile": "work", "launch_mode": "switch"}
+        processes = [{"pid": 123, "command_line": "ChatGPT.exe"}]
+
+        with (
+            patch("bridge.commands.load_config", return_value=config),
+            patch("bridge.commands.read_running_codex_processes", return_value=processes) as read_processes,
+            patch("bridge.commands._get_legacy_system_running_profile", return_value="work"),
+        ):
+            result = get_runtime_status()
+
+        self.assertEqual(result, {"runningCount": 1, "profiles": {"work": True}})
+        read_processes.assert_called_once_with()
+
     def test_codex_skin_is_disabled_for_existing_configs(self):
         self.assertFalse(normalize_config({})["codex_skin_enabled"])
 

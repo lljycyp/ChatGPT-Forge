@@ -61,6 +61,11 @@ export type ProfileSummary = {
   usage: ProfileUsage | null;
 };
 
+export type RuntimeStatus = {
+  runningCount: number;
+  profiles: Record<string, boolean>;
+};
+
 export type ProfileUsageWindow = {
   usedPercent: number;
   remainingPercent: number;
