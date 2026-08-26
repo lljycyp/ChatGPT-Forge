@@ -27,8 +27,8 @@ npm-debug.log*
 codex-tools-2.0.5
 
 # Optional local Codex app copies
-ChatGPTPortableApp/
-ChatGPTPortableApp.bak/
+CodexPortableApp/
+CodexPortableApp.bak/
 
 # Local/editor state
 .agents/

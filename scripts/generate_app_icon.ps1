@@ -4,7 +4,7 @@ param(
 
 Add-Type -AssemblyName System.Drawing
 
-$sourcePath = Join-Path $PSScriptRoot "..\src\renderer\src\assets\chatgpt-forge-logo.png"
+$sourcePath = Join-Path $PSScriptRoot "..\src\renderer\src\assets\codex-forge-logo.png"
 $source = [System.Drawing.Bitmap]::FromFile((Resolve-Path $sourcePath))
 $sizes = @(16, 20, 24, 32, 40, 48, 64, 128, 256)
 $crop = New-Object System.Drawing.RectangleF(127, 123, 1000, 1000)

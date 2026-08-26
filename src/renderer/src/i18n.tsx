@@ -2,7 +2,7 @@ import { createContext, useCallback, useContext, useMemo, useState, type ReactNo
 
 export type Language = "zh-CN" | "en-US";
 
-const storageKey = "chatgptForgeLanguage";
+const storageKey = "codexForgeLanguage";
 
 const en: Record<string, string> = {
   "首页": "Home",
@@ -52,7 +52,7 @@ const en: Record<string, string> = {
   "后台下载": "Download in background",
   "立即下载": "Download now",
   "更新包已下载完成，重启后将自动安装。": "The update is downloaded and will install after restart.",
-  "更新包正在下载，下载期间可以继续使用 ChatGPT Forge。": "The update is downloading. You can keep using ChatGPT Forge.",
+  "更新包正在下载，下载期间可以继续使用 Codex Forge。": "The update is downloading. You can keep using Codex Forge.",
   "新版本已可用。你可以立即下载并查看进度，也可以让它在后台下载。": "A new version is available. Download now or let it run in the background.",
   "更新内容": "What's new",
   "暂无更新说明": "No release notes",
@@ -97,7 +97,7 @@ const en: Record<string, string> = {
   "商业版": "Business",
   "账号切换模式": "Account switch mode",
   "多开隔离模式": "Isolated multi-instance mode",
-  "ChatGPT Forge 已就绪": "ChatGPT Forge is ready",
+  "Codex Forge 已就绪": "Codex Forge is ready",
   "当前工作环境可以正常使用": "The current workspace is ready to use",
   "当前工作环境存在需要处理的问题": "The current workspace needs attention",
   "请先处理环境问题后再启动 ChatGPT": "Resolve the environment issues before launching ChatGPT",
@@ -257,7 +257,7 @@ const en: Record<string, string> = {
   "已切换到多开隔离模式": "Switched to isolated multi-instance mode",
   "已切换到账号切换模式": "Switched to account switch mode",
   "切换到多开隔离模式": "Switch to isolated multi-instance mode",
-  "登录 Windows 后自动启动 ChatGPT Forge。": "Start ChatGPT Forge after Windows sign-in.",
+  "登录 Windows 后自动启动 Codex Forge。": "Start Codex Forge after Windows sign-in.",
   "启动设置": "Launch Settings",
   "账号切换模式共用系统 .codex；多开隔离模式为每个账号使用独立环境，可同时运行多个 ChatGPT 客户端。": "Account switch mode shares the system .codex. Isolated multi-instance mode gives each account its own environment and can run multiple ChatGPT clients.",
   "多开账号共用一份 ChatGPT 客户端副本": "Multi-instance accounts share one ChatGPT client copy",

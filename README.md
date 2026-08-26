@@ -4,10 +4,10 @@
 </p>
 
 <p align="center">
-  <img src="src/renderer/src/assets/chatgpt-forge-logo.png" alt="ChatGPT Forge Logo" width="150" />
+  <img src="src/renderer/src/assets/codex-forge-logo.png" alt="Codex Forge Logo" width="150" />
 </p>
 
-<h1 align="center">ChatGPT Forge</h1>
+<h1 align="center">Codex Forge</h1>
 
 <p align="center">
   <b>ChatGPT 多账号多开 · Auth 管理 · TOML / 指令模板可视化工作台</b>
@@ -34,7 +34,7 @@
 
 ## 📖 简介
 
-**ChatGPT Forge** 是一个面向 ChatGPT 桌面应用的**本地多账号、多开与配置工作台**。它将日常高频的终端操作转化为直观的桌面应用功能：
+**Codex Forge** 是一个面向 ChatGPT 桌面应用的**本地多账号、多开与配置工作台**。它将日常高频的终端操作转化为直观的桌面应用功能：
 
 - ✨ **多账号管理**：集中管理多个 ChatGPT 账号资料。
 - 🔑 **灵活授权**：支持通过浏览器授权、保存当前默认账号，或导入本地 `auth.json` 来新增账号。
@@ -52,7 +52,7 @@
 ## 🖼️ 软件预览
 
 <p align="center">
-  <img src="docs/images/home.png" alt="ChatGPT Forge 首页" />
+  <img src="docs/images/home.png" alt="Codex Forge 首页" />
 </p>
 
 ## ⚡ 功能特性
@@ -70,7 +70,7 @@
 | 🛠️ **TOML 编辑**              | 直接查看和保存当前生效的 `config.toml`，保存前自动备份；切换配置或离开页面时会提醒尚未保存的修改。                                                     |
 | 📝 **指令模板（提示词注入）** | 本地保存 Markdown（标记语言）提示词模板，启用后复制到当前 ChatGPT 配置目录，并把 `config.toml` 的 `model_instructions_file` 指向该模板。              |
 | 🎨 **Codex 换肤**             | 内置 Forge Aurora 主题，支持导入、切换、暂停和删除本地背景主题；图片只保存在本机 Forge 数据目录，并支持账号切换与多开隔离模式。                       |
-| ⚙️ **启动与目录设置**         | 支持切换启动模式、迁移账号资料根目录，并可开启 Windows 登录后自动启动 ChatGPT Forge。                                                                 |
+| ⚙️ **启动与目录设置**         | 支持切换启动模式、迁移账号资料根目录，并可开启 Windows 登录后自动启动 Codex Forge。                                                                 |
 | 🔔 **应用内更新**             | 支持静默检查新版本、手动检查更新、查看发布说明、后台下载更新包并重启安装。                                                                            |
 | 🌐 **语言与项目入口**         | 支持中文 / English 界面切换，并在关于区域提供 GitHub 与 Gitee 项目入口。                                                                               |
 
@@ -109,7 +109,7 @@
 
 ### 4. 🛠️ TOML 可视化编辑与安全备份
 
-ChatGPT Forge 会读取当前生效的配置文件：
+Codex Forge 会读取当前生效的配置文件：
 
 ```text
 ~/.codex/config.toml
@@ -118,21 +118,21 @@ ChatGPT Forge 会读取当前生效的配置文件：
 在保存任何修改前，系统会自动校验 TOML 内容的合法性，并将旧文件安全备份至：
 
 ```text
-%LOCALAPPDATA%/ChatGPTForge/backups/config-toml/
+%LOCALAPPDATA%/CodexForge/backups/config-toml/
 ```
 
 ### 5. 📝 指令模板管理（提示词注入）
 
 指令模板用于快速切换 ChatGPT 的系统级行为提示词。你可以把常用工作方式、代码规范、审查标准，或仓库内置的破除限制提示词保存为 Markdown（标记语言）模板，需要时一键启用。
 
-ChatGPT Forge 当前内置破除限制提示词模板：
+Codex Forge 当前内置破除限制提示词模板：
 
 - `docs/propmt/gpt5.5-unrestricted.md`
 - `docs/propmt/gpt-5.6-sol-unrestricted.md`（适配 GPT-5.6 SOL）
 
-ChatGPT Forge 启动时会自动将这两个模板写入 **指令模板**，但不会默认启用，也不会覆盖已有的同名模板。
+Codex Forge 启动时会自动将这两个模板写入 **指令模板**，但不会默认启用，也不会覆盖已有的同名模板。
 
-你可以在 **指令模板** 页面直接点击启用 / 禁用。启用后，ChatGPT Forge 会把对应 `.md` 写入 ChatGPT 配置目录，并更新 `config.toml` 中的 `model_instructions_file`。
+你可以在 **指令模板** 页面直接点击启用 / 禁用。启用后，Codex Forge 会把对应 `.md` 写入 ChatGPT 配置目录，并更新 `config.toml` 中的 `model_instructions_file`。
 
 | 对比项 | 默认指令             | 破除限制提示词模板           |
 | :----- | :------------------- | :--------------------------- |
@@ -154,7 +154,7 @@ ChatGPT Forge 启动时会自动将这两个模板写入 **指令模板**，但�
 启用后 -> 更倾向于给出安全研究方法论、测试步骤和验证思路
 ```
 
-启用模板时，ChatGPT Forge 会执行三件事：
+启用模板时，Codex Forge 会执行三件事：
 
 - 将模板复制到当前生效的 ChatGPT 配置目录。
 - 在 `config.toml` 中写入 `model_instructions_file = "./模板文件名.md"`。
@@ -164,7 +164,7 @@ ChatGPT Forge 启动时会自动将这两个模板写入 **指令模板**，但�
 
 ### 6. 📦 多开隔离启动
 
-除默认的账号切换模式外，ChatGPT Forge 的特色启动能力是多开隔离：
+除默认的账号切换模式外，Codex Forge 的特色启动能力是多开隔离：
 
 - **账号切换模式**：默认模式。切换账号时写入系统 `~/.codex`，同一时间只建议运行一个 ChatGPT 客户端。
 - **多开隔离模式**：特色模式。首次启动时从系统已安装的 ChatGPT 客户端复制出一份共享副本，所有账号共用该副本，并使用独立配置和运行环境。
@@ -172,7 +172,7 @@ ChatGPT Forge 启动时会自动将这两个模板写入 **指令模板**，但�
 多开隔离模式会隔离 `CodexHome`、`APPDATA`、`LOCALAPPDATA` 和浏览器 `--user-data-dir`。复制出来的共享客户端副本只在账号资料根目录下保存一份：
 
 ```text
-CodexProfiles/.shared/ChatGPTPortableApp
+CodexProfiles/.shared/CodexPortableApp
 CodexProfiles/<profile_id>/CodexHome
 CodexProfiles/<profile_id>/AppData
 ```
@@ -182,7 +182,7 @@ CodexProfiles/<profile_id>/AppData
 Codex 换肤页面提供内置的 **Forge Aurora** 主题，也可以导入本地背景图片并快速切换。导入的图片只保存在本机 Forge 数据目录，不会上传。
 
 <p align="center">
-  <img src="docs/images/codex-skin.png" alt="ChatGPT Forge Codex 换肤页面" />
+  <img src="docs/images/codex-skin.png" alt="Codex Forge Codex 换肤页面" />
 </p>
 
 - 支持账号切换与多开隔离两种启动模式。
@@ -195,7 +195,7 @@ Codex 换肤页面提供内置的 **Forge Aurora** 主题，也可以导入本�
 
 - **账号资料位置**：可更改账号资料根目录，迁移前会提示关闭正在运行的 ChatGPT。
 - **启动模式**：可在账号切换模式和多开隔离模式之间切换；首次启动多开账号时会从系统安装目录复制一份共享客户端副本。
-- **开机自启**：支持登录 Windows 后自动启动 ChatGPT Forge。
+- **开机自启**：支持登录 Windows 后自动启动 Codex Forge。
 - **语言切换**：支持中文 / English 界面切换。
 - **版本更新**：显示当前版本，支持手动检查更新；发现新版本后可查看更新内容、后台下载并重启安装。
 - **项目入口**：关于区域提供 GitHub 与 Gitee 项目入口，方便查看源码和发布信息。
@@ -219,11 +219,11 @@ Codex 换肤页面提供内置的 **Forge Aurora** 主题，也可以导入本�
 ~/.codex/config.toml
 ```
 
-**ChatGPT Forge 自身配置、日志与缓存**：
+**Codex Forge 自身配置、日志与缓存**：
 
 ```text
-%LOCALAPPDATA%/ChatGPTForge/chatgpt_forge.db
-%LOCALAPPDATA%/ChatGPTForge/logs/launcher.log
+%LOCALAPPDATA%/CodexForge/codex_forge.db
+%LOCALAPPDATA%/CodexForge/logs/launcher.log
 ```
 
 **账号资料存储目录**：
@@ -265,7 +265,7 @@ winget list ChatGPT -s msstore
 ### 🚀 开发运行
 
 ```bash
-cd /d/MyObject/ChatGPTForge
+cd /d/MyObject/CodexForge
 cd python
 uv sync --dev
 cd ..
@@ -308,11 +308,11 @@ yarn clean
 
 ```text
 resources/main.exe
-release/ChatGPT-Forge-Setup-<version>.exe
+release/Codex-Forge-Setup-<version>.exe
 ```
 
 ---
 
 ## ⚠️ 免责声明
 
-ChatGPT Forge 是一个本地账号、配置和启动管理工具，非 OpenAI 官方产品，也不隶属于 OpenAI。项目中提供的指令模板仅用于合法的软件开发、代码审计、安全研究和学习测试场景；使用者应自行遵守所在地法律法规、目标系统授权要求以及相关平台服务条款。因使用本工具或模板造成的账号、数据、合规或安全风险，由使用者自行承担。
+Codex Forge 是一个本地账号、配置和启动管理工具，非 OpenAI 官方产品，也不隶属于 OpenAI。项目中提供的指令模板仅用于合法的软件开发、代码审计、安全研究和学习测试场景；使用者应自行遵守所在地法律法规、目标系统授权要求以及相关平台服务条款。因使用本工具或模板造成的账号、数据、合规或安全风险，由使用者自行承担。

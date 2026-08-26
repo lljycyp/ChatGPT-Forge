@@ -435,7 +435,7 @@ def save_profile_launch_settings(payload):
         raise ValueError("环境变量名称不合法")
     blocked = {"APPDATA", "LOCALAPPDATA", "CODEX_HOME", "CODEX_MULTI_PROFILE"}
     if any(key.upper() in blocked for key in env):
-        raise ValueError("隔离环境变量由 ChatGPT Forge 管理，不能在账号启动环境中覆盖")
+        raise ValueError("隔离环境变量由 Codex Forge 管理，不能在账号启动环境中覆盖")
     value = {"workingDir": working_dir, "args": args, "env": env}
     db.save_profile_launch_settings(name, value)
     return {"name": name, **value}
@@ -634,7 +634,7 @@ def export_profile_backup(payload):
     buffer = io.BytesIO()
     with zipfile.ZipFile(buffer, "w", compression=zipfile.ZIP_DEFLATED) as archive:
         archive.writestr(
-            "chatgpt-forge-profile.json",
+            "codex-forge-profile.json",
             json.dumps(
                 {"name": name, "formatVersion": 3, "containsSensitiveAuth": include_auth, "encrypted": secure},
                 ensure_ascii=False,
@@ -714,7 +714,7 @@ def import_profile_backup(payload):
             profiles.remove(name)
             save_config(config)
             raise
-    (profile_dir / "chatgpt-forge-profile.json").unlink(missing_ok=True)
+    (profile_dir / "codex-forge-profile.json").unlink(missing_ok=True)
     ensure_profile_config_path(profile_dir)
     save_config(config)
     return _build_profile_summary(config, name, read_running_codex_commands())
@@ -996,7 +996,7 @@ def _stop_client_processes(processes):
 def _emit_backend_progress(payload):
     """通过桥接进程 stderr 向 Electron 壳发送结构化进度。"""
     print(
-        f"CHATGPT_FORGE_PROGRESS:{json.dumps(payload, ensure_ascii=False)}",
+        f"CODEX_FORGE_PROGRESS:{json.dumps(payload, ensure_ascii=False)}",
         file=sys.stderr,
         flush=True,
     )
@@ -1417,7 +1417,7 @@ def _read_backup_meta(archive):
         if path.is_absolute() or ".." in path.parts:
             raise ValueError("备份文件包含不安全路径")
     try:
-        with archive.open("chatgpt-forge-profile.json") as meta_file:
+        with archive.open("codex-forge-profile.json") as meta_file:
             meta = json.loads(meta_file.read().decode("utf-8"))
             return meta if isinstance(meta, dict) else {}
     except KeyError:

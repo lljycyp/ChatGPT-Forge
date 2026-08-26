@@ -25,8 +25,8 @@ type ActiveSession = {
 
 const sessions = new Map<string, ActiveSession>();
 const pollIntervalMs = 1500;
-const styleId = "chatgpt-forge-codex-skin";
-const stateKey = "__CHATGPT_FORGE_CODEX_SKIN__";
+const styleId = "codex-forge-codex-skin";
+const stateKey = "__CODEX_FORGE_CODEX_SKIN__";
 let activeTheme: CodexSkinThemePayload = {
   id: "builtin-aurora",
   name: "Forge Aurora",
@@ -43,7 +43,7 @@ export function hasCodexSkinSessions(): boolean {
 }
 
 const skinCss = `
-:root[data-chatgpt-forge-skin="active"] {
+:root[data-codex-forge-skin="active"] {
   --forge-skin-bg: #0a0d12;
   --forge-skin-bg-rgb: 10 13 18;
   --forge-skin-panel: 18 22 28;
@@ -57,7 +57,7 @@ const skinCss = `
   --forge-skin-task-shade: linear-gradient(180deg, rgb(var(--forge-skin-bg-rgb) / .64), rgb(var(--forge-skin-bg-rgb) / .84));
 }
 
-:root.electron-light[data-chatgpt-forge-skin="active"] {
+:root.electron-light[data-codex-forge-skin="active"] {
   --forge-skin-bg: #f2f4f6;
   --forge-skin-bg-rgb: 242 244 246;
   --forge-skin-panel: 250 251 252;
@@ -71,7 +71,7 @@ const skinCss = `
   --forge-skin-task-shade: linear-gradient(180deg, rgb(var(--forge-skin-bg-rgb) / .68), rgb(var(--forge-skin-bg-rgb) / .88));
 }
 
-:root[data-chatgpt-forge-skin="active"][data-forge-skin-appearance="light"] {
+:root[data-codex-forge-skin="active"][data-forge-skin-appearance="light"] {
   color-scheme: light;
   --forge-skin-bg: #f2f4f6;
   --forge-skin-bg-rgb: 242 244 246;
@@ -80,7 +80,7 @@ const skinCss = `
   --forge-skin-accent: 15 118 110;
 }
 
-:root[data-chatgpt-forge-skin="active"][data-forge-skin-appearance="dark"] {
+:root[data-codex-forge-skin="active"][data-forge-skin-appearance="dark"] {
   color-scheme: dark;
   --forge-skin-bg: #0a0d12;
   --forge-skin-bg-rgb: 10 13 18;
@@ -89,7 +89,7 @@ const skinCss = `
   --forge-skin-accent: 94 234 212;
 }
 
-html[data-chatgpt-forge-skin="active"] body {
+html[data-codex-forge-skin="active"] body {
   background-color: var(--forge-skin-bg) !important;
   background-image: var(--forge-skin-art-source, var(--forge-skin-art)) !important;
   background-attachment: fixed !important;
@@ -98,14 +98,14 @@ html[data-chatgpt-forge-skin="active"] body {
   background-size: cover !important;
 }
 
-html[data-chatgpt-forge-skin="active"] main.main-surface {
+html[data-codex-forge-skin="active"] main.main-surface {
   position: relative;
   isolation: isolate;
   overflow: hidden;
   background: transparent !important;
 }
 
-html[data-chatgpt-forge-skin="active"] main.main-surface::before {
+html[data-codex-forge-skin="active"] main.main-surface::before {
   content: "";
   position: absolute;
   inset: 0;
@@ -115,94 +115,94 @@ html[data-chatgpt-forge-skin="active"] main.main-surface::before {
   opacity: 0;
 }
 
-html[data-chatgpt-forge-skin="active"][data-forge-skin-page="home"] main.main-surface::before {
+html[data-codex-forge-skin="active"][data-forge-skin-page="home"] main.main-surface::before {
   background:
     linear-gradient(180deg, transparent 52%, rgb(var(--forge-skin-bg-rgb) / .22)),
     var(--forge-skin-safe-scrim);
   opacity: 1;
 }
 
-html[data-chatgpt-forge-skin="active"][data-forge-skin-page="task"] main.main-surface::before {
+html[data-codex-forge-skin="active"][data-forge-skin-page="task"] main.main-surface::before {
   background: var(--forge-skin-task-shade), var(--forge-skin-safe-scrim);
   opacity: 1;
   backdrop-filter: blur(2px) saturate(92%);
 }
 
-html[data-chatgpt-forge-skin="active"][data-forge-skin-page="settings"] main.main-surface {
+html[data-codex-forge-skin="active"][data-forge-skin-page="settings"] main.main-surface {
   background: rgb(var(--forge-skin-panel) / .96) !important;
 }
 
-html[data-chatgpt-forge-skin="active"] [role="main"],
-html[data-chatgpt-forge-skin="active"] main.main-surface :is(div, section, aside)[class~="bg-token-main-surface-primary"] {
+html[data-codex-forge-skin="active"] [role="main"],
+html[data-codex-forge-skin="active"] main.main-surface :is(div, section, aside)[class~="bg-token-main-surface-primary"] {
   background: transparent !important;
 }
 
-html[data-chatgpt-forge-skin="active"] main.main-surface div[class~="bg-token-main-surface-primary"][class~="border-l"] {
+html[data-codex-forge-skin="active"] main.main-surface div[class~="bg-token-main-surface-primary"][class~="border-l"] {
   background: rgb(var(--forge-skin-panel) / .72) !important;
   backdrop-filter: blur(10px) saturate(106%);
 }
 
-html[data-chatgpt-forge-skin="active"] aside.app-shell-left-panel {
+html[data-codex-forge-skin="active"] aside.app-shell-left-panel {
   background: rgb(var(--forge-skin-panel) / .68) !important;
   border-right: 1px solid rgb(var(--forge-skin-line) / .16) !important;
   box-shadow: inset -1px 0 rgb(255 255 255 / .04);
   backdrop-filter: blur(16px) saturate(108%);
 }
 
-html[data-chatgpt-forge-skin="active"][data-forge-skin-page="home"][data-forge-skin-wide="true"] aside.app-shell-left-panel {
+html[data-codex-forge-skin="active"][data-forge-skin-page="home"][data-forge-skin-wide="true"] aside.app-shell-left-panel {
   background: rgb(var(--forge-skin-panel) / .46) !important;
   backdrop-filter: blur(10px) saturate(104%);
 }
 
-html[data-chatgpt-forge-skin="active"][data-forge-skin-page="task"] aside.app-shell-left-panel {
+html[data-codex-forge-skin="active"][data-forge-skin-page="task"] aside.app-shell-left-panel {
   background: rgb(var(--forge-skin-panel) / .78) !important;
 }
 
-html[data-chatgpt-forge-skin="active"][data-forge-skin-page="settings"] aside.app-shell-left-panel {
+html[data-codex-forge-skin="active"][data-forge-skin-page="settings"] aside.app-shell-left-panel {
   background: rgb(var(--forge-skin-panel) / .96) !important;
   backdrop-filter: none;
 }
 
-html[data-chatgpt-forge-skin="active"] aside.app-shell-left-panel button,
-html[data-chatgpt-forge-skin="active"] aside.app-shell-left-panel a {
+html[data-codex-forge-skin="active"] aside.app-shell-left-panel button,
+html[data-codex-forge-skin="active"] aside.app-shell-left-panel a {
   transition: background-color 180ms ease, color 180ms ease, border-color 180ms ease !important;
 }
 
-html[data-chatgpt-forge-skin="active"] aside.app-shell-left-panel button:hover,
-html[data-chatgpt-forge-skin="active"] aside.app-shell-left-panel a:hover {
+html[data-codex-forge-skin="active"] aside.app-shell-left-panel button:hover,
+html[data-codex-forge-skin="active"] aside.app-shell-left-panel a:hover {
   background-color: rgb(var(--forge-skin-accent) / .10) !important;
 }
 
-html[data-chatgpt-forge-skin="active"] aside.app-shell-left-panel [aria-current="page"] {
+html[data-codex-forge-skin="active"] aside.app-shell-left-panel [aria-current="page"] {
   background-color: rgb(var(--forge-skin-accent) / .14) !important;
   box-shadow: inset 0 0 0 1px rgb(var(--forge-skin-accent) / .20);
 }
 
-html[data-chatgpt-forge-skin="active"] header.app-header-tint {
+html[data-codex-forge-skin="active"] header.app-header-tint {
   background: rgb(var(--forge-skin-panel) / .52) !important;
   border-bottom-color: rgb(var(--forge-skin-line) / .16) !important;
   box-shadow: inset 0 -1px rgb(255 255 255 / .04);
   backdrop-filter: blur(12px) saturate(106%);
 }
 
-html[data-chatgpt-forge-skin="active"][data-forge-skin-page="home"][data-forge-skin-wide="true"] header.app-header-tint {
+html[data-codex-forge-skin="active"][data-forge-skin-page="home"][data-forge-skin-wide="true"] header.app-header-tint {
   background: rgb(var(--forge-skin-panel) / .36) !important;
 }
 
-html[data-chatgpt-forge-skin="active"][data-forge-skin-page="task"] header.app-header-tint {
+html[data-codex-forge-skin="active"][data-forge-skin-page="task"] header.app-header-tint {
   background: rgb(var(--forge-skin-panel) / .70) !important;
 }
 
-html[data-chatgpt-forge-skin="active"] [role="dialog"],
-html[data-chatgpt-forge-skin="active"] [role="menu"],
-html[data-chatgpt-forge-skin="active"] [data-radix-popper-content-wrapper] > * {
+html[data-codex-forge-skin="active"] [role="dialog"],
+html[data-codex-forge-skin="active"] [role="menu"],
+html[data-codex-forge-skin="active"] [data-radix-popper-content-wrapper] > * {
   background-color: rgb(var(--forge-skin-panel) / .94) !important;
   border-color: rgb(var(--forge-skin-line) / .22) !important;
   box-shadow: 0 18px 50px rgb(var(--forge-skin-bg-rgb) / .26), inset 0 1px rgb(255 255 255 / .08) !important;
   backdrop-filter: blur(18px) saturate(108%);
 }
 
-html[data-chatgpt-forge-skin="active"] .composer-surface-chrome {
+html[data-codex-forge-skin="active"] .composer-surface-chrome {
   background-color: rgb(var(--forge-skin-panel) / .72) !important;
   border-color: rgb(var(--forge-skin-line) / .18) !important;
   box-shadow:
@@ -211,30 +211,30 @@ html[data-chatgpt-forge-skin="active"] .composer-surface-chrome {
   backdrop-filter: blur(14px) saturate(106%);
 }
 
-html[data-chatgpt-forge-skin="active"][data-forge-skin-page="home"][data-forge-skin-wide="true"] .composer-surface-chrome {
+html[data-codex-forge-skin="active"][data-forge-skin-page="home"][data-forge-skin-wide="true"] .composer-surface-chrome {
   background-color: rgb(var(--forge-skin-panel) / .58) !important;
   backdrop-filter: blur(10px) saturate(103%);
 }
 
-html[data-chatgpt-forge-skin="active"][data-forge-skin-page="task"] .composer-surface-chrome {
+html[data-codex-forge-skin="active"][data-forge-skin-page="task"] .composer-surface-chrome {
   background-color: rgb(var(--forge-skin-panel) / .68) !important;
 }
 
-html[data-chatgpt-forge-skin="active"][data-forge-skin-page="task"]
+html[data-codex-forge-skin="active"][data-forge-skin-page="task"]
   .thread-scroll-container
   div[class~="bg-gradient-to-t"][class~="from-token-main-surface-primary"][class~="via-token-main-surface-primary"] {
   background: transparent !important;
   background-image: none !important;
 }
 
-html[data-chatgpt-forge-skin="active"] :is(.group\\/home-suggestions, .group\\/project-selector, [class*="_homeUtilityBar_"], [data-feature="game-source"]) {
+html[data-codex-forge-skin="active"] :is(.group\\/home-suggestions, .group\\/project-selector, [class*="_homeUtilityBar_"], [data-feature="game-source"]) {
   border-color: rgb(var(--forge-skin-line) / .16) !important;
   background-color: rgb(var(--forge-skin-panel) / .40) !important;
   box-shadow: inset 0 1px rgb(255 255 255 / .06);
   backdrop-filter: blur(10px) saturate(104%);
 }
 
-html[data-chatgpt-forge-skin="active"][data-forge-skin-page="task"] main.main-surface article {
+html[data-codex-forge-skin="active"][data-forge-skin-page="task"] main.main-surface article {
   border-color: rgb(var(--forge-skin-line) / .12) !important;
   background-color: rgb(var(--forge-skin-panel) / .52) !important;
   box-shadow: none;
@@ -259,7 +259,7 @@ function buildInstallExpression(theme: CodexSkinThemePayload): string {
   style.textContent = css;
   (document.head || document.documentElement).appendChild(style);
   const root = document.documentElement;
-  root.setAttribute("data-chatgpt-forge-skin", "active");
+  root.setAttribute("data-codex-forge-skin", "active");
   root.setAttribute("data-forge-skin-appearance", appearance);
   const token = {};
   let frame = 0;
@@ -436,7 +436,7 @@ function buildInstallExpression(theme: CodexSkinThemePayload): string {
       window.removeEventListener("hashchange", queuePageUpdate);
       window.removeEventListener("popstate", queuePageUpdate);
       document.getElementById(id)?.remove();
-      root.removeAttribute("data-chatgpt-forge-skin");
+      root.removeAttribute("data-codex-forge-skin");
       root.removeAttribute("data-forge-skin-appearance");
       root.removeAttribute("data-forge-skin-page");
       root.removeAttribute("data-forge-skin-wide");
@@ -461,7 +461,7 @@ const removeExpression = `(() => {
   const key = ${JSON.stringify(stateKey)};
   if (window[key] && typeof window[key].remove === "function") window[key].remove();
   document.getElementById(${JSON.stringify(styleId)})?.remove();
-  document.documentElement.removeAttribute("data-chatgpt-forge-skin");
+  document.documentElement.removeAttribute("data-codex-forge-skin");
   document.documentElement.removeAttribute("data-forge-skin-appearance");
   document.documentElement.removeAttribute("data-forge-skin-page");
   document.documentElement.removeAttribute("data-forge-skin-wide");

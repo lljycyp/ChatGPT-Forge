@@ -1,6 +1,6 @@
 import { contextBridge, ipcRenderer } from "electron";
 
-const projectGitHubUrl = "https://github.com/lljycyp/ChatGPT-Forge";
+const projectGitHubUrl = "https://github.com/lljycyp/Codex-Forge";
 const projectGiteeUrl = "https://gitee.com/llj20010218/codex-forge";
 
 contextBridge.exposeInMainWorld("launcherApi", {

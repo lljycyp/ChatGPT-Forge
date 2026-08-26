@@ -5,7 +5,7 @@ const root = path.join(__dirname, "..");
 const apiBase = "https://api.github.com";
 const uploadsBase = "https://uploads.github.com";
 const owner = process.env.GITHUB_OWNER || "lljycyp";
-const repo = process.env.GITHUB_REPO || "ChatGPT-Forge";
+const repo = process.env.GITHUB_REPO || "Codex-Forge";
 const token = process.env.GITHUB_TOKEN;
 const dryRun = process.env.GITHUB_DRY_RUN === "1";
 const uploadTimeout = Number(process.env.GITHUB_UPLOAD_TIMEOUT_MS || 7_200_000);
@@ -16,7 +16,7 @@ const tagName = process.env.RELEASE_TAG || `v${version}`;
 const releaseDir = path.join(root, "release");
 const releaseNotesPath = path.join(releaseDir, "release-notes.md");
 const requiredFiles = [
-  path.join(releaseDir, `ChatGPT-Forge-Setup-${version}.exe`),
+  path.join(releaseDir, `Codex-Forge-Setup-${version}.exe`),
   path.join(releaseDir, "latest.yml"),
   releaseNotesPath,
 ];
@@ -87,7 +87,7 @@ async function createRelease(notes) {
     body: {
       tag_name: tagName,
       target_commitish: "main",
-      name: `ChatGPT Forge ${version}`,
+      name: `Codex Forge ${version}`,
       body: notes,
       draft: false,
       prerelease: false,
@@ -100,7 +100,7 @@ async function updateRelease(id, notes) {
     method: "PATCH",
     body: {
       tag_name: tagName,
-      name: `ChatGPT Forge ${version}`,
+      name: `Codex Forge ${version}`,
       body: notes,
       draft: false,
       prerelease: false,

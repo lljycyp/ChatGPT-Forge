@@ -201,7 +201,7 @@ class ChatGptCompatibilityTest(unittest.TestCase):
     def test_recovers_running_switch_skin_session_from_managed_client(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             shared_root = Path(temp_dir) / ".shared"
-            executable = shared_root / "ChatGPTPortableApp" / "ChatGPT.exe"
+            executable = shared_root / "CodexPortableApp" / "ChatGPT.exe"
             config = {
                 "profile_root": temp_dir,
                 "launch_mode": "switch",
@@ -328,7 +328,7 @@ class ChatGptCompatibilityTest(unittest.TestCase):
             )
 
             profile_dir = root / "profile"
-            old_copy = profile_dir / "ChatGPTPortableApp"
+            old_copy = profile_dir / "CodexPortableApp"
             old_copy.mkdir(parents=True)
             (old_copy / "Codex.exe").write_bytes(b"old")
             portable_path = Path(prepare_portable_codex_path(package_app / "ChatGPT.exe", profile_dir))
@@ -421,7 +421,7 @@ class ChatGptCompatibilityTest(unittest.TestCase):
         self.assertEqual(usage["oneWeek"]["remainingPercent"], 98)
 
     def test_app_server_temp_cleanup_retries_marketplace_race(self):
-        path = Path(tempfile.gettempdir()) / "chatgpt-forge-account-test"
+        path = Path(tempfile.gettempdir()) / "codex-forge-account-test"
         directory_not_empty = OSError(145, "目录不是空的", str(path / ".git"))
         with (
             patch("core.app_server_service.shutil.rmtree", side_effect=(directory_not_empty, None)) as rmtree,
@@ -486,7 +486,7 @@ trusted_hash = "dynamic"
             source.mkdir()
             (source / "ChatGPT.exe").write_bytes(b"new-client")
             profile = root / "profile"
-            old_copy = profile / "ChatGPTPortableApp"
+            old_copy = profile / "CodexPortableApp"
             old_copy.mkdir(parents=True)
             (old_copy / "ChatGPT.exe").write_bytes(b"old-client")
             progress = []
@@ -523,7 +523,7 @@ trusted_hash = "dynamic"
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir)
             profile_dir = root / "profiles" / "work"
-            portable_dir = profile_dir / "ChatGPTPortableApp"
+            portable_dir = profile_dir / "CodexPortableApp"
             portable_dir.mkdir(parents=True)
             (profile_dir / "auth.json").write_text("{}", encoding="utf-8")
             (portable_dir / "ChatGPT.exe").write_bytes(b"client")
@@ -550,7 +550,7 @@ trusted_hash = "dynamic"
                 self.assertNotIn("auth.json", archive.namelist())
                 self.assertNotIn("CodexHome/auth.json", archive.namelist())
                 self.assertIn("CodexHome/config.toml", archive.namelist())
-                self.assertFalse(any(name.startswith("ChatGPTPortableApp/") for name in archive.namelist()))
+                self.assertFalse(any(name.startswith("CodexPortableApp/") for name in archive.namelist()))
                 self.assertFalse(any(name.startswith("AppData/") for name in archive.namelist()))
                 self.assertNotIn("CodexHome/logs_2.sqlite", archive.namelist())
                 self.assertNotIn("CodexHome/plugins/cached-plugin/SKILL.md", archive.namelist())

@@ -110,7 +110,7 @@ export function registerIpcHandlers(): void {
     const window = BrowserWindow.fromWebContents(event.sender);
     const options: OpenDialogOptions = {
       title: "选择账号备份文件",
-      filters: [{ name: "ChatGPT Forge profile backup", extensions: ["forgebackup", "zip"] }],
+      filters: [{ name: "Codex Forge profile backup", extensions: ["forgebackup", "zip"] }],
       properties: ["openFile"]
     };
     const result = window ? await dialog.showOpenDialog(window, options) : await dialog.showOpenDialog(options);

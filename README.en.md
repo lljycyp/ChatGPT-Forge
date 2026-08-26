@@ -4,10 +4,10 @@
 </p>
 
 <p align="center">
-  <img src="src/renderer/src/assets/chatgpt-forge-logo.png" alt="ChatGPT Forge Logo" width="150" />
+  <img src="src/renderer/src/assets/codex-forge-logo.png" alt="Codex Forge Logo" width="150" />
 </p>
 
-<h1 align="center">ChatGPT Forge</h1>
+<h1 align="center">Codex Forge</h1>
 
 <p align="center">
   <b>ChatGPT multi-account and multi-instance management · Auth management · Visual TOML / instruction workspace</b>
@@ -34,7 +34,7 @@
 
 ## 📖 Overview
 
-**ChatGPT Forge** is a local workspace for ChatGPT accounts, multi-instance launches, and configuration. It turns common terminal-side operations into desktop app workflows:
+**Codex Forge** is a local workspace for ChatGPT accounts, multi-instance launches, and configuration. It turns common terminal-side operations into desktop app workflows:
 
 - ✨ **Multiple accounts**: Manage multiple ChatGPT account profiles in one place.
 - 🔑 **Flexible auth import**: Add accounts through browser OAuth, the current default account, or a local `auth.json` file.
@@ -52,7 +52,7 @@
 ## 🖼️ Software Preview
 
 <p align="center">
-  <img src="docs/images/home.png" alt="ChatGPT Forge home page" />
+  <img src="docs/images/home.png" alt="Codex Forge home page" />
 </p>
 
 ## ⚡ Features
@@ -70,7 +70,7 @@
 | 🛠️ **TOML editor** | Opens and saves the active `config.toml`, backs it up automatically before saving, and warns about unsaved changes before switching configurations or leaving the page. |
 | 📝 **Instruction templates (prompt injection)** | Saves Markdown prompt templates locally. Enabling a template copies it into the active ChatGPT config directory and points `model_instructions_file` in `config.toml` to that template. |
 | 🎨 **Codex skins** | Includes the Forge Aurora theme and supports importing, switching, pausing, and deleting local background themes. Images stay in the local Forge data directory, with support for both account-switch and isolated multi-instance modes. |
-| ⚙️ **Launch and directory settings** | Switch launch modes, migrate the account profile root, and enable ChatGPT Forge to start after Windows sign-in. |
+| ⚙️ **Launch and directory settings** | Switch launch modes, migrate the account profile root, and enable Codex Forge to start after Windows sign-in. |
 | 🔔 **In-app updates** | Supports silent update checks, manual update checks, release notes, background downloads, and restart-to-install. |
 | 🌐 **Language and project links** | Supports Chinese / English UI switching and provides GitHub and Gitee project links in the About area. |
 
@@ -109,7 +109,7 @@ There are three ways to add an account:
 
 ### 4. 🛠️ Visual TOML Editing with Backups
 
-ChatGPT Forge reads the active config file:
+Codex Forge reads the active config file:
 
 ```text
 ~/.codex/config.toml
@@ -118,21 +118,21 @@ ChatGPT Forge reads the active config file:
 Before saving changes, it validates the TOML content and backs up the old file to:
 
 ```text
-%LOCALAPPDATA%/ChatGPTForge/backups/config-toml/
+%LOCALAPPDATA%/CodexForge/backups/config-toml/
 ```
 
 ### 5. 📝 Instruction Template Management (Prompt Injection)
 
 Instruction templates let you quickly switch ChatGPT's system-level behavior prompt. You can save common workflows, coding rules, review standards, or one of the bundled restriction-breaking prompts as Markdown templates and enable them when needed.
 
-ChatGPT Forge currently includes these restriction-breaking prompt templates:
+Codex Forge currently includes these restriction-breaking prompt templates:
 
 - `docs/propmt/gpt5.5-unrestricted.md`
 - `docs/propmt/gpt-5.6-sol-unrestricted.md` (for GPT-5.6 SOL)
 
-ChatGPT Forge automatically adds both templates to **Instruction templates** at startup, but leaves them disabled and does not overwrite existing templates with the same filenames.
+Codex Forge automatically adds both templates to **Instruction templates** at startup, but leaves them disabled and does not overwrite existing templates with the same filenames.
 
-You can enable or disable them directly from the **Instruction templates** page. After a template is enabled, ChatGPT Forge writes the matching `.md` file into the ChatGPT config directory and updates `model_instructions_file` in `config.toml`.
+You can enable or disable them directly from the **Instruction templates** page. After a template is enabled, Codex Forge writes the matching `.md` file into the ChatGPT config directory and updates `model_instructions_file` in `config.toml`.
 
 | Comparison | Default instructions | Restriction-breaking prompt templates |
 | :--- | :--- | :--- |
@@ -154,7 +154,7 @@ Before enabling -> More likely to refuse or answer generically
 After enabling -> More likely to provide security research methodology, testing steps, and verification ideas
 ```
 
-When a template is enabled, ChatGPT Forge does three things:
+When a template is enabled, Codex Forge does three things:
 - Copies the template into the active ChatGPT config directory.
 - Writes `model_instructions_file = "./template-file-name.md"` into `config.toml`.
 - In isolated multi-instance mode, supports syncing to the current account, a selected account, or all accounts.
@@ -163,7 +163,7 @@ This means you can switch between default instructions, team rules, and a less r
 
 ### 6. 📦 Isolated Multi-instance Launch
 
-In addition to the default account-switching mode, ChatGPT Forge's featured launch capability is isolated multi-instance mode:
+In addition to the default account-switching mode, Codex Forge's featured launch capability is isolated multi-instance mode:
 
 - **Account-switching mode**: The default mode. Switching accounts writes into the system `~/.codex`; one ChatGPT client is recommended.
 - **Isolated multi-instance mode**: On first launch, Forge creates one shared copy from the installed ChatGPT client. All accounts use that copy with separate configuration and runtime data.
@@ -171,7 +171,7 @@ In addition to the default account-switching mode, ChatGPT Forge's featured laun
 Isolated multi-instance mode separates `CodexHome`, `APPDATA`, `LOCALAPPDATA`, and the browser `--user-data-dir`. The copied shared client is stored once under the profile root:
 
 ```text
-CodexProfiles/.shared/ChatGPTPortableApp
+CodexProfiles/.shared/CodexPortableApp
 CodexProfiles/<profile-id>/CodexHome
 CodexProfiles/<profile-id>/AppData
 ```
@@ -181,7 +181,7 @@ CodexProfiles/<profile-id>/AppData
 The Codex Skins page includes the built-in **Forge Aurora** theme and lets you import and switch local background images. Imported images stay in the local Forge data directory and are never uploaded.
 
 <p align="center">
-  <img src="docs/images/codex-skin.png" alt="ChatGPT Forge Codex Skins page" />
+  <img src="docs/images/codex-skin.png" alt="Codex Forge Codex Skins page" />
 </p>
 
 - Works with both account-switch and isolated multi-instance modes.
@@ -190,18 +190,18 @@ The Codex Skins page includes the built-in **Forge Aurora** theme and lets you i
 
 ### 8. ⚙️ Settings, Updates, and Project Links
 
-The Settings page centralizes ChatGPT Forge's own configuration:
+The Settings page centralizes Codex Forge's own configuration:
 
 - **Account profile location**: Change the account profile root. The app prompts you to close running ChatGPT instances before migration.
 - **Launch mode**: Switch between account-switching and isolated multi-instance mode. The first multi-instance launch copies one shared client from the installed app.
-- **Auto start**: Start ChatGPT Forge automatically after Windows sign-in.
+- **Auto start**: Start Codex Forge automatically after Windows sign-in.
 - **Language switching**: Switch between Chinese and English UI.
 - **Version updates**: Show the current version and check for updates manually. When a new version is available, you can view release notes, download in the background, and restart to install.
 - **Project links**: The About area provides GitHub and Gitee project links for source code and release information.
 
 ### 9. 🧠 Smart ChatGPT Launch Detection
 
-When launching an account, ChatGPT Forge resolves the launch source in this order:
+When launching an account, Codex Forge resolves the launch source in this order:
 
 1. Saved ChatGPT desktop executable path.
 2. The currently running ChatGPT main process.
@@ -218,11 +218,11 @@ When launching an account, ChatGPT Forge resolves the launch source in this orde
 ~/.codex/config.toml
 ```
 
-**ChatGPT Forge config, logs, and cache**:
+**Codex Forge config, logs, and cache**:
 
 ```text
-%LOCALAPPDATA%/ChatGPTForge/chatgpt_forge.db
-%LOCALAPPDATA%/ChatGPTForge/logs/launcher.log
+%LOCALAPPDATA%/CodexForge/codex_forge.db
+%LOCALAPPDATA%/CodexForge/logs/launcher.log
 ```
 
 **Account profile storage**:
@@ -264,7 +264,7 @@ winget list ChatGPT -s msstore
 ### 🚀 Development
 
 ```bash
-cd /d/MyObject/ChatGPTForge
+cd /d/MyObject/CodexForge
 cd python
 uv sync --dev
 cd ..
@@ -306,11 +306,11 @@ yarn clean
 
 ```text
 resources/main.exe
-release/ChatGPT-Forge-Setup-<version>.exe
+release/Codex-Forge-Setup-<version>.exe
 ```
 
 ---
 
 ## ⚠️ Disclaimer
 
-ChatGPT Forge is a local account, configuration, and launch management tool. It is not an official OpenAI product and is not affiliated with OpenAI. The included instruction templates are intended only for lawful software development, code auditing, security research, and learning or testing scenarios. Users are responsible for complying with local laws, target-system authorization requirements, and relevant platform terms of service. Any account, data, compliance, or security risks caused by using this tool or its templates are the user's own responsibility.
+Codex Forge is a local account, configuration, and launch management tool. It is not an official OpenAI product and is not affiliated with OpenAI. The included instruction templates are intended only for lawful software development, code auditing, security research, and learning or testing scenarios. Users are responsible for complying with local laws, target-system authorization requirements, and relevant platform terms of service. Any account, data, compliance, or security risks caused by using this tool or its templates are the user's own responsibility.

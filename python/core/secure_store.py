@@ -3,7 +3,7 @@ import os
 from ctypes import wintypes
 
 
-MAGIC = b"CHATGPT-FORGE-DPAPI\x00"
+MAGIC = b"CODEX-FORGE-DPAPI\x00"
 
 
 class _DataBlob(ctypes.Structure):
@@ -17,7 +17,7 @@ def protect_bytes(value):
     target = _DataBlob()
     if not ctypes.windll.crypt32.CryptProtectData(
         ctypes.byref(source),
-        "ChatGPT Forge backup",
+        "Codex Forge backup",
         None,
         None,
         None,

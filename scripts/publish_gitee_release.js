@@ -20,7 +20,7 @@ const tagName = process.env.RELEASE_TAG || process.env.GITHUB_REF_NAME || `v${ve
 const releaseDir = path.join(root, "release");
 const releaseNotesPath = path.join(releaseDir, "release-notes.md");
 const requiredFiles = [
-  path.join(releaseDir, `ChatGPT-Forge-Setup-${version}.exe`),
+  path.join(releaseDir, `Codex-Forge-Setup-${version}.exe`),
   path.join(releaseDir, "latest.yml"),
   releaseNotesPath,
 ];
@@ -84,7 +84,7 @@ async function createRelease(notes) {
   const params = {
     access_token: token,
     tag_name: tagName,
-    name: `ChatGPT Forge ${version}`,
+    name: `Codex Forge ${version}`,
     body: notes,
     target_commitish: "main",
     prerelease: "false",
@@ -100,7 +100,7 @@ async function updateRelease(id, notes) {
   const params = {
     access_token: token,
     tag_name: tagName,
-    name: `ChatGPT Forge ${version}`,
+    name: `Codex Forge ${version}`,
     body: notes,
     prerelease: "false",
   };

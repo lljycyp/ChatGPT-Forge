@@ -281,7 +281,7 @@ export function SettingsPage({ appState, privacyMode, runCommand, onPrivacyModeC
             <div className="min-w-0">
               <div className="font-semibold text-slate-700">{t("开机自启")}</div>
               <div className="mt-1 text-sm leading-6 text-slate-500">
-                {t("登录 Windows 后自动启动 ChatGPT Forge。")}
+                {t("登录 Windows 后自动启动 Codex Forge。")}
               </div>
             </div>
             <Switch
@@ -353,7 +353,7 @@ export function SettingsPage({ appState, privacyMode, runCommand, onPrivacyModeC
         <div className="rounded-xl border border-[#e4ebf3] bg-slate-50/50 p-6">
           <div className="flex items-center justify-between gap-6">
             <div className="min-w-0">
-              <div className="font-semibold text-slate-700">ChatGPT Forge</div>
+              <div className="font-semibold text-slate-700">Codex Forge</div>
               <div className="mt-1 text-sm leading-6 text-slate-500">
                 {t("当前版本")}
               </div>

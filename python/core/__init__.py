@@ -1,1 +1,1 @@
-"""ChatGPT Forge 核心业务模块。"""
+"""Codex Forge 核心业务模块。"""

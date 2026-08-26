@@ -23,7 +23,7 @@ type BackendCommand = {
   mode: "packaged" | "development";
 };
 
-const progressPrefix = "CHATGPT_FORGE_PROGRESS:";
+const progressPrefix = "CODEX_FORGE_PROGRESS:";
 
 function getProjectRoot(): string {
   return app.isPackaged ? process.resourcesPath : join(__dirname, "../..");

@@ -45,7 +45,7 @@ export function HomePage({ appState, profiles, onOpenView, onLaunchProfile }: Ho
   const attentionCount = environmentChecks.filter((item) => !item.ok).length;
   const environmentReady = attentionCount === 0;
   const hasRunningInstance = appState.runningCount > 0;
-  const heroTitle = environmentReady ? t("ChatGPT Forge 已就绪") : t("当前工作环境存在需要处理的问题");
+  const heroTitle = environmentReady ? t("Codex Forge 已就绪") : t("当前工作环境存在需要处理的问题");
   const heroDescription = environmentReady
     ? t("当前工作环境可以正常使用")
     : t("请先处理环境问题后再启动 ChatGPT");

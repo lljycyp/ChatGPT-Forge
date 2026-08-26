@@ -42,7 +42,7 @@ type WorkspaceSnapshot = {
 type WorkspaceTab = "insights" | "resources" | "sessions" | "launch";
 
 const SYSTEM_PROFILE_NAME = "__system__";
-const workspaceTabStorageKey = "chatgptForgeWorkspaceTab";
+const workspaceTabStorageKey = "codexForgeWorkspaceTab";
 const workspaceSections: Record<WorkspaceTab, string[]> = {
   insights: ["history", "health"],
   resources: ["workspace"],

@@ -12,12 +12,12 @@ import { TomlConfigPage } from "./pages/TomlConfigPage";
 import { CodexSkinPage } from "./pages/CodexSkinPage";
 import { SettingsPage } from "./pages/SettingsPage";
 import { WorkspacePage } from "./pages/WorkspacePage";
-import chatgptForgeLogo from "./assets/chatgpt-forge-logo.png";
+import codexForgeLogo from "./assets/codex-forge-logo.png";
 import type { AppState, ProfileSummary, ProfileUsage, RunCommand, UpdateEvent, ViewKey } from "./types";
 
 const { Content } = Layout;
 const usageAutoRefreshMs = 5 * 60 * 1000;
-const privacyModeStorageKey = "chatgptForgePrivacyMode";
+const privacyModeStorageKey = "codexForgePrivacyMode";
 type UpdateModalEvent = Exclude<UpdateEvent, { status: "error" } | { status: "not-available" }>;
 type ShellSnapshot = { appState: AppState; profiles: ProfileSummary[] };
 
@@ -314,7 +314,7 @@ export default function App() {
   const currentView = useMemo(() => getViewMeta(t), [t])[activeView];
 
   useEffect(() => {
-    document.title = `${currentView.title} - ChatGPT Forge`;
+    document.title = `${currentView.title} - Codex Forge`;
   }, [currentView.title]);
 
   useEffect(() => {
@@ -472,7 +472,7 @@ export default function App() {
               <div className="forge-splash-ring" />
               <div className="grid h-[76px] w-[76px] place-items-center rounded-[20px] bg-white shadow-[0_18px_46px_rgba(15,118,110,0.22)]">
                 <img
-                  src={chatgptForgeLogo}
+                  src={codexForgeLogo}
                   alt=""
                   className="h-[54px] w-[54px] object-contain"
                   draggable={false}
@@ -480,7 +480,7 @@ export default function App() {
               </div>
             </div>
             <div className="grid gap-1">
-              <div className="text-xl font-extrabold text-slate-900">ChatGPT Forge</div>
+              <div className="text-xl font-extrabold text-slate-900">Codex Forge</div>
               <div className="text-sm font-semibold text-slate-500">{t("正在加载账号数据...")}</div>
             </div>
             <div className="h-1.5 w-[210px] overflow-hidden rounded-full bg-slate-200">
@@ -520,7 +520,7 @@ export default function App() {
           <div className="grid gap-5">
             <div className="flex items-center gap-4 rounded-xl bg-slate-50 p-4">
               <div className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-white shadow-sm ring-1 ring-slate-900/5">
-                <img src={chatgptForgeLogo} alt="" className="h-8 w-8 object-contain" draggable={false} />
+                <img src={codexForgeLogo} alt="" className="h-8 w-8 object-contain" draggable={false} />
               </div>
               <div className="grid gap-1">
                 <div className="text-[15px] font-semibold text-slate-900">
@@ -530,7 +530,7 @@ export default function App() {
                   {updateEvent.status === "downloaded"
                     ? t("更新包已下载完成，重启后将自动安装。")
                     : updateEvent.status === "downloading"
-                      ? t("更新包正在下载，下载期间可以继续使用 ChatGPT Forge。")
+                      ? t("更新包正在下载，下载期间可以继续使用 Codex Forge。")
                       : t("新版本已可用。你可以立即下载并查看进度，也可以让它在后台下载。")}
                 </div>
               </div>
