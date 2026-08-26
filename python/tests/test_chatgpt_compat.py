@@ -10,6 +10,7 @@ from unittest.mock import Mock, call, patch
 
 from bridge.commands import (
     _append_codex_skin_args,
+    _cleanup_orphaned_portable_processes,
     _get_legacy_system_running_profile,
     get_codex_skin_sessions,
     _is_profile_running,
@@ -29,6 +30,7 @@ from core.codex_source import (
     _get_appx_package_version,
     _is_client_main_process,
     _find_appx_client_path,
+    _replace_directory_with_retry,
     find_windowsapps_codex_path_by_package,
     portable_app_needs_update,
     prepare_portable_codex_path,
@@ -47,6 +49,72 @@ from core.usage_service import _map_app_server_usage
 
 
 class ChatGptCompatibilityTest(unittest.TestCase):
+    def test_portable_update_stops_orphaned_helper_processes(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            profile_root = Path(temp_dir)
+            target_dir = profile_root / ".shared" / "CodexPortableApp"
+            target_dir.mkdir(parents=True)
+            config = {"profile_root": str(profile_root)}
+            orphan = {
+                "name": "codex.exe",
+                "pid": 123,
+                "command_line": f'"{target_dir / "resources" / "codex.exe"}" app-server',
+            }
+
+            with (
+                patch("bridge.commands.portable_app_needs_update", return_value=True),
+                patch("bridge.commands.read_processes_in_directory", side_effect=[[orphan], []]),
+                patch("bridge.commands.subprocess.run") as run,
+            ):
+                _cleanup_orphaned_portable_processes(config, Path("C:/Apps/ChatGPT.exe"))
+
+            self.assertEqual(run.call_args.args[0], ["taskkill", "/PID", "123", "/T", "/F"])
+
+    def test_portable_update_does_not_stop_running_main_client(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            profile_root = Path(temp_dir)
+            target_dir = profile_root / ".shared" / "CodexPortableApp"
+            target_dir.mkdir(parents=True)
+            config = {"profile_root": str(profile_root)}
+            main_process = {
+                "name": "ChatGPT.exe",
+                "pid": 123,
+                "command_line": f'"{target_dir / "ChatGPT.exe"}"',
+            }
+
+            with (
+                patch("bridge.commands.portable_app_needs_update", return_value=True),
+                patch("bridge.commands.read_processes_in_directory", return_value=[main_process]),
+                patch("bridge.commands.subprocess.run") as run,
+            ):
+                with self.assertRaisesRegex(RuntimeError, "请先关闭所有正在运行的 Codex"):
+                    _cleanup_orphaned_portable_processes(config, Path("C:/Apps/ChatGPT.exe"))
+
+            run.assert_not_called()
+
+    def test_portable_directory_replace_retries_transient_windows_lock(self):
+        locked = PermissionError("locked")
+        locked.winerror = 32
+        with (
+            patch("core.codex_source.os.replace", side_effect=[locked, None]) as replace,
+            patch("core.codex_source.time.monotonic", return_value=0),
+            patch("core.codex_source.time.sleep") as sleep,
+        ):
+            _replace_directory_with_retry(Path("old"), Path("backup"))
+
+        self.assertEqual(replace.call_count, 2)
+        sleep.assert_called_once_with(0.25)
+
+    def test_portable_directory_replace_reports_persistent_windows_lock(self):
+        locked = PermissionError("locked")
+        locked.winerror = 32
+        with (
+            patch("core.codex_source.os.replace", side_effect=locked),
+            patch("core.codex_source.time.monotonic", side_effect=[0, 4]),
+        ):
+            with self.assertRaisesRegex(RuntimeError, "Codex 客户端副本仍被后台进程占用"):
+                _replace_directory_with_retry(Path("old"), Path("backup"))
+
     def test_store_source_prefers_latest_installed_package(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             windows_apps = Path(temp_dir) / "WindowsApps"

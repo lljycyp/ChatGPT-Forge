@@ -20,7 +20,9 @@ from core.codex_source import (
     find_running_codex_path,
     find_windowsapps_codex_path,
     find_windowsapps_codex_path_by_package,
+    portable_app_needs_update,
     prepare_portable_codex_path,
+    read_processes_in_directory,
     request_process_close,
     read_source_signature,
     read_running_codex_commands,
@@ -794,6 +796,7 @@ def _launch_profile_multi(config, name, reserved_skin_ports=None):
         directory.mkdir(parents=True, exist_ok=True)
 
     prepare_profile_codex_home(profile_dir)
+    _cleanup_orphaned_portable_processes(config, codex_path)
     portable_codex_path = prepare_portable_codex_path(
         codex_path,
         _get_shared_app_root(config),
@@ -1789,6 +1792,44 @@ def _prefer_latest_installed_store_path(configured_app_path):
     return configured_app_path
 
 
+def _cleanup_orphaned_portable_processes(config, source_codex_path):
+    """更新共享副本前清理已无主窗口的残留辅助进程。"""
+    target_app_dir = _get_shared_app_root(config) / PORTABLE_APP_DIR_NAME
+    if not target_app_dir.exists() or not portable_app_needs_update(source_codex_path, target_app_dir):
+        return
+    processes = read_processes_in_directory(target_app_dir)
+    if not processes:
+        return
+    main_processes = [
+        process
+        for process in processes
+        if str(process.get("name") or "").lower() in ("chatgpt.exe", "codex.exe")
+        and "--type=" not in str(process.get("command_line") or "").lower()
+        and " app-server" not in str(process.get("command_line") or "").lower()
+    ]
+    if main_processes:
+        raise RuntimeError("Codex 客户端需要更新，请先关闭所有正在运行的 Codex 实例后重试")
+
+    pids = {int(process.get("pid") or 0) for process in processes if process.get("pid")}
+    logger.info("清理旧版 Codex 残留辅助进程 数量=%s", len(pids))
+    for pid in pids:
+        subprocess.run(
+            ["taskkill", "/PID", str(pid), "/T", "/F"],
+            capture_output=True,
+            text=True,
+            timeout=10,
+            creationflags=subprocess.CREATE_NO_WINDOW,
+        )
+
+    deadline = time.monotonic() + 5
+    remaining = read_processes_in_directory(target_app_dir)
+    while remaining and time.monotonic() < deadline:
+        time.sleep(0.25)
+        remaining = read_processes_in_directory(target_app_dir)
+    if remaining:
+        raise RuntimeError("旧版 Codex 后台进程未能完全退出，请在任务管理器结束后重试")
+
+
 def _resolve_configured_codex_app_path(configured_path):
     """把用户保存的文件或目录解析为客户端主程序。"""
     if not configured_path:
@@ -1880,6 +1921,7 @@ def _launch_default_codex(profile_name="", skin_port=None):
     if skin_port is not None:
         codex_path = Path(_resolve_codex_app_source_path(config))
         if _is_windows_store_codex_path(codex_path):
+            _cleanup_orphaned_portable_processes(config, codex_path)
             codex_path = Path(
                 prepare_portable_codex_path(
                     codex_path,

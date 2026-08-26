@@ -6,6 +6,7 @@ import subprocess
 import sys
 import ctypes
 import ctypes.wintypes
+import time
 import uuid
 from pathlib import Path
 
@@ -54,6 +55,50 @@ $processes = Get-CimInstance Win32_Process -Filter "Name = 'ChatGPT.exe' OR Name
         if isinstance(item, dict) and item.get("ProcessId") and item.get("CommandLine")
     ]
     return [process for process in candidates if _is_client_main_process(process)]
+
+
+def read_processes_in_directory(target_dir):
+    """读取主程序或辅助程序位于指定目录内的进程，仅用于客户端副本更新。"""
+    if os.name != "nt":
+        return []
+    env = os.environ.copy()
+    env["CODEX_FORGE_PROCESS_ROOT"] = os.path.abspath(target_dir)
+    script = r"""
+$root = [IO.Path]::GetFullPath($env:CODEX_FORGE_PROCESS_ROOT).TrimEnd('\') + '\'
+$processes = Get-CimInstance Win32_Process | Where-Object {
+  $_.ExecutablePath -and $_.ExecutablePath.StartsWith($root, [StringComparison]::OrdinalIgnoreCase)
+}
+@($processes | Select-Object Name, ProcessId, ParentProcessId, ExecutablePath, CommandLine) | ConvertTo-Json -Compress
+"""
+    try:
+        result = subprocess.run(
+            ["powershell", "-NoProfile", "-NonInteractive", "-Command", script],
+            capture_output=True,
+            text=True,
+            timeout=8,
+            creationflags=subprocess.CREATE_NO_WINDOW,
+            env=env,
+        )
+    except Exception:
+        return []
+    if result.returncode != 0 or not result.stdout.strip():
+        return []
+    try:
+        payload = json.loads(result.stdout)
+    except json.JSONDecodeError:
+        return []
+    items = payload if isinstance(payload, list) else [payload]
+    return [
+        {
+            "name": str(item.get("Name") or ""),
+            "pid": int(item.get("ProcessId") or 0),
+            "parent_pid": int(item.get("ParentProcessId") or 0),
+            "executable_path": str(item.get("ExecutablePath") or ""),
+            "command_line": str(item.get("CommandLine") or ""),
+        }
+        for item in items
+        if isinstance(item, dict) and item.get("ProcessId")
+    ]
 
 
 def _is_client_main_process(process):
@@ -297,12 +342,12 @@ def prepare_portable_codex_path(source_codex_path, profile_dir, allow_update=Tru
         signature["directory_size"] = get_directory_size(staging_dir)
         write_source_signature(staging_dir, signature)
         if target_app_dir.exists():
-            os.replace(target_app_dir, backup_dir)
+            _replace_directory_with_retry(target_app_dir, backup_dir)
         try:
-            os.replace(staging_dir, target_app_dir)
+            _replace_directory_with_retry(staging_dir, target_app_dir)
         except Exception:
             if backup_dir.exists() and not target_app_dir.exists():
-                os.replace(backup_dir, target_app_dir)
+                _replace_directory_with_retry(backup_dir, target_app_dir)
             raise
         if backup_dir.exists():
             shutil.rmtree(backup_dir, onerror=remove_readonly_path)
@@ -313,6 +358,19 @@ def prepare_portable_codex_path(source_codex_path, profile_dir, allow_update=Tru
             shutil.rmtree(backup_dir, onerror=remove_readonly_path)
 
     return str(target_codex_path)
+
+
+def _replace_directory_with_retry(source_dir, target_dir, timeout_seconds=3):
+    """短暂重试 Windows 目录交换，并把持续占用转换为可操作的错误。"""
+    deadline = time.monotonic() + timeout_seconds
+    while True:
+        try:
+            os.replace(source_dir, target_dir)
+            return
+        except PermissionError as exc:
+            if getattr(exc, "winerror", None) not in (5, 32) or time.monotonic() >= deadline:
+                raise RuntimeError("Codex 客户端副本仍被后台进程占用，请完全退出 Codex 后重试") from exc
+            time.sleep(0.25)
 
 
 def _recover_portable_copy(profile_dir, target_app_dir):
